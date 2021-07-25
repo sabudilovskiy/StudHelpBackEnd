@@ -13,7 +13,7 @@ import MathObject.MathObject.MathObject
 import Parameters.SLE
 import Point.Point
 import Settings.matrix.SLE.getSettings
-import Support.fuck_this_shit
+import Support.create_array_with_n_elements
 
 class AugmentedMatrix : Matrix {
     protected var augmented_n = 0
@@ -169,12 +169,12 @@ class AugmentedMatrix : Matrix {
                 copy.gauss_transformation()
                 copy.reduce_null_strings()
                 if (m == n) {
-                    val answer : ArrayList<Double> = fuck_this_shit<Double>(0, n)
+                    val answer : ArrayList<Double> = create_array_with_n_elements<Double>(0, n)
                     for (i in 0 until n) if (arr[i][i] == 1.0) answer[i] =
                         augmented_arr[0][i] else throw HAVE_NOT_SOLUTIONS()
                     return Point(answer)
                 } else {
-                    val base = fuck_this_shit<Matrix>(Matrix(1), n-m);
+                    val base = create_array_with_n_elements<Matrix>(Matrix(1), n-m);
                     if (is_homogeneous()) {
                         add(
                             "",

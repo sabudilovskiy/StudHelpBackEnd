@@ -11,6 +11,8 @@ import Parameters.Det
 import Parameters.Rank
 import Settings.matrix
 import Settings.matrix.Rank.getSettings
+import Support.newQuadraticArrayList
+import Support.newSingleArrayList
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -18,9 +20,9 @@ open class Matrix : MathObject {
     protected var cof_det = 1.0
     var m = 0
     var n = 0
-    lateinit var arr: Array<DoubleArray>;
+    lateinit var arr: ArrayList<ArrayList<Double>>;
 
-    constructor(_arr: Array<DoubleArray>) {
+    constructor(_arr: ArrayList<ArrayList<Double>>) {
         arr = _arr
         m = _arr.size
         if (m > 0) n = _arr[0].size else n = 0
@@ -28,37 +30,38 @@ open class Matrix : MathObject {
 
     //создаёт единичную матрицу n на n
     constructor(n: Int) {
-        arr = Array(n) { DoubleArray(n) }
+        val arr = newQuadraticArrayList<Double>(0.0, m, n)
         m = n
         this.n = n
         for (i in 0 until n) for (j in 0 until n) arr[i][j] = if (i == j) 1.0 else 0.0
     }
 
     //создаёт матрицу вектора
-    constructor(arr: DoubleArray) {
-        m = arr.size
+    constructor(_arr: DoubleArray) {
+        m = _arr.size
         n = 1
-        this.arr = Array(m) { DoubleArray(n) }
-        for (i in 0 until m) this.arr[i][0] = arr[i]
+        arr = newQuadraticArrayList<Double> (0.0, m, 1)
+        for (i in 0 until m) arr[i][0] = _arr[i]
     }
     @Throws(MRV.MATRIX_DIMENSION_MISSMATCH::class)
-    fun summ(left: Matrix, right: Matrix): Matrix {
-        return if (left.m == right.m && left.n == right.n) {
+    fun plus(right: Matrix): Matrix {
+        val left : Matrix = this
+        if (left.m == right.m && left.n == right.n) {
             val m = left.m
             val n = left.n
-            val arr = Array(m) { DoubleArray(n) }
+            val arr = newQuadraticArrayList<Double>(0.0, m, n)
             for (i in 0 until m) for (j in 0 until n) arr[i][j] = left.arr[i][j] + right.arr[i][j]
-            Matrix(arr)
+            return Matrix(arr)
         } else throw MRV.MATRIX_DIMENSION_MISSMATCH()
     }
-
     @Throws(MRV.MATRIX_DIMENSION_MISSMATCH::class)
-    fun mult(left: Matrix, right: Matrix): Matrix {
+    fun times(right: Matrix): Matrix {
+        val left : Matrix = this
         return if (left.n == right.m) {
             val m = left.m
             val n = left.n
             val p = right.n
-            val arr = Array(m) { DoubleArray(p) }
+            val arr = newQuadraticArrayList<Double>(0.0, m, p)
             for (i in 0 until m) for (j in 0 until p) for (k in 0 until n) arr[i][j] += left.arr[i][k] * right.arr[k][j]
             Matrix(arr)
         } else throw MRV.MATRIX_DIMENSION_MISSMATCH()
@@ -96,7 +99,7 @@ open class Matrix : MathObject {
 
     protected open fun delete_string(a: Int) {
         if (0 <= a && a < m) {
-            val temp = Array(m - 1) { DoubleArray(n) }
+            val temp = newQuadraticArrayList<Double>(0, m-1, n)
             for (i in 0 until a) for (j in 0 until n) temp[i][j] = arr[i][j]
             for (i in a + 1 until m) for (j in 0 until n) temp[i - 1][j] = arr[i][j]
             arr = temp
@@ -107,7 +110,7 @@ open class Matrix : MathObject {
     @Throws(MRV.INVALID_NUMBER_STRING::class)
     protected fun delete_column(a: Int) {
         if (0 <= a && a < n) {
-            val temp = Array(m) { DoubleArray(n - 1) }
+            val temp = newQuadraticArrayList<Double>(0.0, m, n-1)
             for (i in 0 until m) for (j in 0 until a) temp[i][j] = arr[i][j]
             for (i in 0 until m) for (j in a + 1 until n) temp[i][j - 1] = arr[i][j]
             arr = temp
@@ -235,11 +238,7 @@ open class Matrix : MathObject {
             var a = 0
             var b = 0
             val m_new = m - str.size
-            val temp_arr = Array(m_new) {
-                DoubleArray(
-                    m_new
-                )
-            }
+            val temp_arr : ArrayList<ArrayList<Double>> = newQuadraticArrayList(0.0, m_new, m_new)
             while (k < m_new * m_new) {
                 var crossed_out = false
                 for (j in str) if (a == j) {
@@ -268,11 +267,7 @@ open class Matrix : MathObject {
             val a = 0
             val b = 0
             val m_new = str.size
-            val temp_arr = Array(m_new) {
-                DoubleArray(
-                    m_new
-                )
-            }
+            val temp_arr : ArrayList<ArrayList<Double>> = newQuadraticArrayList(0.0, m_new, m_new)
             var i = 0
             while (i < m && k < m_new * m_new) {
                 var j = 0
@@ -446,7 +441,7 @@ open class Matrix : MathObject {
         val str = find_most_null_string()
         val col = find_most_null_column()
         var det = 0.0
-        val A = DoubleArray(m) //массив алгебраических дополнений
+        val A = newSingleArrayList<Double>(0.0, m) //массив алгебраических дополнений
         if (str[1] >= col[1]) {
             log_this("Для подсчёта определителя будем использовать разложение в строку. Раскладываем по " + (str[0] + 1) + " строке.")
             for (i in 0 until n) {
@@ -552,7 +547,7 @@ open class Matrix : MathObject {
         }
         add("a" + (a + 1) + (b + 1) + '\u2260' + " 0 ", "")
         add("", "Теперь рассмотрим все миноры, в которые входит данный элемент.")
-        val temp_arr = Array(1) { DoubleArray(1) }
+        val temp_arr = newQuadraticArrayList<Double>(0.0, 1, 1)
         var cur_minor = Matrix(temp_arr)
         var cur_str = arrayOfNulls<Int>(1)
         var cur_col = arrayOfNulls<Int>(1)
@@ -600,7 +595,7 @@ open class Matrix : MathObject {
     }
 
     fun Transposition() {
-        val new_arr = Array(n) { DoubleArray(m) }
+        val new_arr = newQuadraticArrayList<Double>(0.0, n, m)
         for (i in 0 until m) for (j in 0 until n) new_arr[j][i] = arr[i][j]
         arr = new_arr
         val temp = n

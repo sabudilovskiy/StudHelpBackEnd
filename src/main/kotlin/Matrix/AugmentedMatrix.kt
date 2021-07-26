@@ -8,17 +8,17 @@ import MRV.MRV.HAVE_NOT_SOLUTIONS
 import MRV.MRV.INVALID_NUMBER_STRING
 import MRV.MRV.MATRIX_DIMENSION_MISSMATCH
 import MRV.MRV.NON_SINGLE
-import MRV.MRV.NOT_IMPLEMENT
 import MathObject.MathObject.MathObject
 import Parameters.SLE
 import Point.Point
 import Settings.matrix.SLE.getSettings
-import Support.create_array_with_n_elements
+import Support.newQuadraticArrayList
+import Support.newSingleArrayList
 
 class AugmentedMatrix : Matrix {
     protected var augmented_n = 0
-    lateinit var augmented_arr: Array<DoubleArray>
-    constructor(arr: Array<DoubleArray>, augmented_arr: Array<DoubleArray>) : super(arr) {
+    lateinit var augmented_arr: ArrayList<ArrayList<Double>>
+    constructor(arr: ArrayList<ArrayList<Double>>, augmented_arr: ArrayList<ArrayList<Double>>) : super(arr) {
         this.augmented_arr = augmented_arr
         val augmented_m = augmented_arr.size
         if (augmented_m == m) {
@@ -74,7 +74,7 @@ class AugmentedMatrix : Matrix {
 
     @Throws(INVALID_NUMBER_STRING::class)
     override fun rank(): Int {
-        val temp_arr = Array(m) { DoubleArray(n + augmented_n) }
+        val temp_arr = newQuadraticArrayList<Double>(0.0, m, n+augmented_n)
         for (i in 0 until m) for (j in 0 until n + augmented_n) {
             if (j < n) temp_arr[i][j] = arr.get(i).get(j) else temp_arr[i][j] = augmented_arr[i][j - n]
         }
@@ -97,11 +97,7 @@ class AugmentedMatrix : Matrix {
     }
 
     override fun delete_string(a: Int) {
-        val temp = Array(m - 1) {
-            DoubleArray(
-                augmented_n
-            )
-        }
+        val temp = newQuadraticArrayList<Double>(0.0, m-1, augmented_n)
         for (i in 0 until a) for (j in 0 until augmented_n) temp[i][j] = augmented_arr[i][j]
         for (i in a + 1 until m) for (j in 0 until augmented_n) temp[i - 1][j] = augmented_arr[i][j]
         augmented_arr = temp
@@ -109,7 +105,7 @@ class AugmentedMatrix : Matrix {
     }
 
     protected fun reset_augmented() {
-        augmented_arr = Array(m) { DoubleArray(1) }
+        augmented_arr = newQuadraticArrayList(0.0, m, 1)
     }
 
     protected fun is_homogeneous(): Boolean {
@@ -122,7 +118,7 @@ class AugmentedMatrix : Matrix {
     fun substituion(array: DoubleArray): Matrix {
         return if (n - m == array.size && augmented_n == 1) {
             if (is_single()) {
-                val cof = DoubleArray(n)
+                val cof : ArrayList<Double> = newSingleArrayList<Double> (0.0, n)
                 for (i in m until n) cof[i] = array[i - m]
                 for (i in 0 until m) {
                     var temp1 = "x" + (i + 1) + " = "
@@ -157,24 +153,23 @@ class AugmentedMatrix : Matrix {
         INVALID_NUMBER_STRING::class,
         HAVE_NOT_SOLUTIONS::class,
         NON_SINGLE::class,
-        NOT_IMPLEMENT::class
     )
     fun solve_system():MathObject {
         return if (augmented_n == 1) {
             val copy : AugmentedMatrix = AugmentedMatrix(arr, augmented_arr)
             if (m == n && getSettings() === SLE.KRAMER_RULE) {
-                throw NOT_IMPLEMENT()
+                TODO("")
             } else {
                 add("", "Решим систему методом Гаусса")
                 copy.gauss_transformation()
                 copy.reduce_null_strings()
                 if (m == n) {
-                    val answer : ArrayList<Double> = create_array_with_n_elements<Double>(0, n)
+                    val answer : ArrayList<Double> = newSingleArrayList<Double>(0, n)
                     for (i in 0 until n) if (arr[i][i] == 1.0) answer[i] =
                         augmented_arr[0][i] else throw HAVE_NOT_SOLUTIONS()
                     return Point(answer)
                 } else {
-                    val base = create_array_with_n_elements<Matrix>(Matrix(1), n-m);
+                    val base = newSingleArrayList<Matrix>(Matrix(1), n-m);
                     if (is_homogeneous()) {
                         add(
                             "",

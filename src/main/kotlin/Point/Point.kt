@@ -1,14 +1,14 @@
 package Point
 
 import MathObject.MathObject.MathObject
-import Support.create_array_with_n_elements
+import Support.new_arraylist
 
 class Point : MathObject{
     var coords = ArrayList<Double>(0)
     var n = 0
 
     internal constructor(n: Int) {
-        coords = create_array_with_n_elements(0, n)
+        coords = new_arraylist(0, n)
         this.n = n
     }
 

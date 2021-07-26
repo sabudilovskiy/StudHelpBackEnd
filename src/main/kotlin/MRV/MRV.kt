@@ -150,5 +150,5 @@ object MRV {
     class INVALID_NUMBER_STRING : MATRIX_ERROR()
     class HAVE_NOT_SOLUTIONS : MATRIX_ERROR()
     class NON_SINGLE : MATRIX_ERROR()
-    class NOT_IMPLEMENT : Exception()
+    class NON_COMPLIANCE_TYPES : Exception()
 }

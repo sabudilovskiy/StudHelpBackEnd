@@ -3,10 +3,9 @@ import MRV.MRV.HAVE_NOT_SOLUTIONS
 import MRV.MRV.INVALID_NUMBER_STRING
 import MRV.MRV.MATRIX_DIMENSION_MISSMATCH
 import MRV.MRV.NON_SINGLE
-import MRV.MRV.NOT_IMPLEMENT
+import MRV.MRV.`NON-COMPLIANCE_TYPES`
 import MathObject.MathObject.MathObject
 import Matrix.AugmentedMatrix
-import Matrix.Matrix
 import Settings.matrix.Det.setBorder
 import Settings.matrix.Det.setdefaultSettings
 import java.util.*
@@ -49,7 +48,7 @@ object Test_Matrix {
         try {
             temp2 = temp.solve_system()
         } catch (ignored: MATRIX_DIMENSION_MISSMATCH) {
-        } catch (ignored: NOT_IMPLEMENT) {
+        } catch (ignored: `NON-COMPLIANCE_TYPES`) {
         } finally {
             temp2?.log_this("")
             print_log()

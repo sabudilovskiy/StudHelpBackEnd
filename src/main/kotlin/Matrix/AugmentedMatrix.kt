@@ -1,6 +1,8 @@
 package Matrix
 
 import AffineSpace.AffineSpace
+import CanBeInMatrix.CanBeInMatrix
+import Number.FractionalNumber
 import LinearSpace.LinearSpace
 import Logger.Log.add
 import MRV.MRV
@@ -9,6 +11,7 @@ import MRV.MRV.INVALID_NUMBER_STRING
 import MRV.MRV.MATRIX_DIMENSION_MISSMATCH
 import MRV.MRV.NON_SINGLE
 import MathObject.MathObject.MathObject
+import Number.newNumber
 import Parameters.SLE
 import Point.Point
 import Settings.matrix.SLE.getSettings
@@ -17,8 +20,8 @@ import Support.newSingleArrayList
 
 class AugmentedMatrix : Matrix {
     protected var augmented_n = 0
-    lateinit var augmented_arr: ArrayList<ArrayList<Double>>
-    constructor(arr: ArrayList<ArrayList<Double>>, augmented_arr: ArrayList<ArrayList<Double>>) : super(arr) {
+    lateinit var augmented_arr: ArrayList<ArrayList<CanBeInMatrix>>
+    constructor(arr: ArrayList<ArrayList<CanBeInMatrix>>, augmented_arr: ArrayList<ArrayList<CanBeInMatrix>>) : super(arr) {
         this.augmented_arr = augmented_arr
         val augmented_m = augmented_arr.size
         if (augmented_m == m) {
@@ -36,7 +39,7 @@ class AugmentedMatrix : Matrix {
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
-    override fun summ_strings(a: Int, b: Int, k: Double) {
+    override fun summ_strings(a: Int, b: Int, k: CanBeInMatrix) {
         for (i in 0 until augmented_n) augmented_arr[a][i] += augmented_arr[b][i] * k
         super.summ_strings(a, b, k)
     }
@@ -49,7 +52,7 @@ class AugmentedMatrix : Matrix {
         return Matrix(arr)
     }
 
-    public override fun decode_this(): String {
+    public override fun toString(): String {
         var decode = ""
         for (i in 0 until m) {
             for (j in 0 until n) decode += arr.get(i).get(j).toString() + " "
@@ -61,22 +64,22 @@ class AugmentedMatrix : Matrix {
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
-    override fun mult_string(a: Int, k: Double) {
-        for (i in 0 until augmented_n) augmented_arr[a][i] *= k
+    override fun mult_string(a: Int, k: CanBeInMatrix) {
+        for (i in 0 until augmented_n) augmented_arr[a][i] = augmented_arr[a][i] * k
         super.mult_string(a, k)
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
-    override fun div_string(a: Int, k: Double) {
-        for (i in 0 until augmented_n) augmented_arr[a][i] /= k
+    override fun div_string(a: Int, k: CanBeInMatrix) {
+        for (i in 0 until augmented_n) augmented_arr[a][i] = augmented_arr[a][i] / k
         super.div_string(a, k)
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
     override fun rank(): Int {
-        val temp_arr = newQuadraticArrayList<Double>(0.0, m, n+augmented_n)
+        val temp_arr = newQuadraticArrayList<CanBeInMatrix>(FractionalNumber(0.0), m, n+augmented_n)
         for (i in 0 until m) for (j in 0 until n + augmented_n) {
-            if (j < n) temp_arr[i][j] = arr.get(i).get(j) else temp_arr[i][j] = augmented_arr[i][j - n]
+            if (j < n) temp_arr[i][j] = arr[i][j] else temp_arr[i][j] = augmented_arr[i][j - n]
         }
         val temp = Matrix(temp_arr)
         return temp.rank()
@@ -87,7 +90,7 @@ class AugmentedMatrix : Matrix {
         var augmented_check = true
         return if (0 <= a && a < m) {
             for (i in 0 until augmented_n) {
-                if (augmented_arr[a][i] != 0.0) {
+                if (!augmented_arr[a][i].equals( 0.0)) {
                     augmented_check = false
                     break
                 }
@@ -97,7 +100,8 @@ class AugmentedMatrix : Matrix {
     }
 
     override fun delete_string(a: Int) {
-        val temp = newQuadraticArrayList<Double>(0.0, m-1, augmented_n)
+        val zero = newNumber(0.0)
+        val temp = newQuadraticArrayList<CanBeInMatrix>(zero, m-1, augmented_n)
         for (i in 0 until a) for (j in 0 until augmented_n) temp[i][j] = augmented_arr[i][j]
         for (i in a + 1 until m) for (j in 0 until augmented_n) temp[i - 1][j] = augmented_arr[i][j]
         augmented_arr = temp
@@ -105,36 +109,36 @@ class AugmentedMatrix : Matrix {
     }
 
     protected fun reset_augmented() {
-        augmented_arr = newQuadraticArrayList(0.0, m, 1)
+        augmented_arr = newQuadraticArrayList(newNumber(0.0), m, 1)
     }
 
     protected fun is_homogeneous(): Boolean {
         if (augmented_n > 1) return false
-        for (i in 0 until m) if (augmented_arr[i][0] != 0.0) return false
+        for (i in 0 until m) if (!augmented_arr[i][0].equals( 0.0)) return false
         return true
     }
 
     @Throws(MATRIX_DIMENSION_MISSMATCH::class, NON_SINGLE::class)
-    fun substituion(array: DoubleArray): Matrix {
+    fun substituion(array: ArrayList<CanBeInMatrix>): Matrix {
         return if (n - m == array.size && augmented_n == 1) {
             if (is_single()) {
-                val cof : ArrayList<Double> = newSingleArrayList<Double> (0.0, n)
+                val cof : ArrayList<CanBeInMatrix> = newSingleArrayList<CanBeInMatrix> (newNumber(0.0), n)
                 for (i in m until n) cof[i] = array[i - m]
                 for (i in 0 until m) {
                     var temp1 = "x" + (i + 1) + " = "
                     var temp2 = temp1
                     for (j in m until n) {
                         //если и коэффициент в матрице ненулевой и подставляется не ноль у соответствующей переменной
-                        if (arr.get(i).get(j) != 0.0 && cof[j] != 0.0) {
+                        if (!arr[i][j].equals( 0.0)&& !cof[j].equals( 0.0)) {
                             temp1 += "-a" + (i + 1) + (j + 1) + " * " + "x" + (j + 1) + " + "
                             temp2 += (-arr[i][j]).toString() + " * " + cof[j] + " + "
                             cof[i] += -arr[i][j] * cof[j]
                         }
                     }
-                    if (augmented_arr[i][0] != 0.0) {
+                    if (!augmented_arr[i][0].equals( 0.0)) {
                         temp1 += "b" + (i + 1)
                         temp2 += augmented_arr[i][0]
-                        cof[i] += augmented_arr[i][0]
+                        cof[i] = cof[i] + augmented_arr[i][0]
                     } else {
                         temp1 = temp1.substring(0, temp1.length - 3)
                         temp2 = temp2.substring(0, temp2.length - 3)
@@ -164,9 +168,8 @@ class AugmentedMatrix : Matrix {
                 copy.gauss_transformation()
                 copy.reduce_null_strings()
                 if (m == n) {
-                    val answer : ArrayList<Double> = newSingleArrayList<Double>(0, n)
-                    for (i in 0 until n) if (arr[i][i] == 1.0) answer[i] =
-                        augmented_arr[0][i] else throw HAVE_NOT_SOLUTIONS()
+                    val answer : ArrayList<CanBeInMatrix> = newSingleArrayList<CanBeInMatrix>(newNumber(0.0), n)
+                    for (i in 0 until n) if (arr[i][i].equals(1.0)) answer[i] = augmented_arr[0][i] else throw HAVE_NOT_SOLUTIONS()
                     return Point(answer)
                 } else {
                     val base = newSingleArrayList<Matrix>(Matrix(1), n-m);
@@ -176,12 +179,12 @@ class AugmentedMatrix : Matrix {
                             "Так как СЛАУ является однородной и прямоугольной, то она задаёт линейное подпространство(оболочку). Найдём базис."
                         )
                         for (i in 0 until n - m) {
-                            val cords_vector = DoubleArray(n - m)
-                            cords_vector[i] = 1.0
+                            val cords_vector = newSingleArrayList(newNumber(0.0),n - m)
+                            cords_vector[i] = newNumber(1.0)
                             for (j in m until n) add("x" + (j + 1) + " = " + cords_vector[j], "")
                             for (j in 0 until m) {
                                 base[i] = substituion(cords_vector)
-                                base[i]!!.log_this("")
+                                base[i].log_this("")
                             }
                         }
                         return LinearSpace(base)
@@ -191,20 +194,17 @@ class AugmentedMatrix : Matrix {
                             "Так как СЛАУ является неоднородной и прямоугольной, то она задаёт линейное многообразие. Найдём базис."
                         )
                         add("", "Найдём частное решение")
-                        val v = substituion(DoubleArray(n - m))
+                        val v = substituion(newSingleArrayList(newNumber(0.0), n - m))
                         v.log_this("Это вектор, на который перенесёно линейное подпространство")
-                        add(
-                            "",
-                            "Найдём базис соответствующего пространства. Для этого обнулим столбец свободных членов."
-                        )
                         copy.reset_augmented()
+                        copy.log_this("Найдём базис соответствующего пространства. Для этого обнулим столбец свободных членов.")
                         for (i in 0 until n - m) {
-                            val cords_vector = DoubleArray(n - m)
-                            cords_vector[i] = 1.0
+                            val cords_vector = newSingleArrayList<CanBeInMatrix>(newNumber(0.0),n - m)
+                            cords_vector[i] = newNumber(1.0)
                             for (j in m until n) add("x" + (j + 1) + " = " + cords_vector[j - m], "")
                             for (j in 0 until m) {
                                 base[i] = substituion(cords_vector)
-                                base[i]!!.log_this("")
+                                base[i].log_this("")
                             }
                         }
                         var temp : AffineSpace? = null

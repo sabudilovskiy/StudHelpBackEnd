@@ -1,5 +1,6 @@
 package Matrix
 
+import CanBeInMatrix.CanBeInMatrix
 import Logger.Log.add
 import MRV.MRV
 import MRV.MRV.DEGENERATE_MATRIX
@@ -7,6 +8,7 @@ import MRV.MRV.INVALID_NUMBER_STRING
 import MRV.MRV.MATRIX_DIMENSION_MISSMATCH
 import MRV.MRV.NON_QUADRATIC_MATRIX
 import MathObject.MathObject.MathObject
+import Number.newNumber
 import Parameters.Det
 import Parameters.Rank
 import Settings.matrix
@@ -17,12 +19,12 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 open class Matrix : MathObject {
-    protected var cof_det = 1.0
+    protected var cof_det = newNumber(1.0)
     var m = 0
     var n = 0
-    lateinit var arr: ArrayList<ArrayList<Double>>;
+    lateinit var arr: ArrayList<ArrayList<CanBeInMatrix>>;
 
-    constructor(_arr: ArrayList<ArrayList<Double>>) {
+    constructor(_arr: ArrayList<ArrayList<CanBeInMatrix>>) {
         arr = _arr
         m = _arr.size
         if (m > 0) n = _arr[0].size else n = 0
@@ -30,26 +32,31 @@ open class Matrix : MathObject {
 
     //создаёт единичную матрицу n на n
     constructor(n: Int) {
-        val arr = newQuadraticArrayList<Double>(0.0, m, n)
+        val zero = newNumber(0.0)
+        val one = newNumber(1.0)
+        val arr = newQuadraticArrayList<CanBeInMatrix>(zero, n, n)
         m = n
         this.n = n
-        for (i in 0 until n) for (j in 0 until n) arr[i][j] = if (i == j) 1.0 else 0.0
+        for (i in 0 until n) for (j in 0 until n) if (i == j) arr[i][j] = one
     }
 
     //создаёт матрицу вектора
-    constructor(_arr: DoubleArray) {
+    constructor(_arr: MutableList<CanBeInMatrix>) {
+        val zero = newNumber(0.0)
         m = _arr.size
         n = 1
-        arr = newQuadraticArrayList<Double> (0.0, m, 1)
+        arr = newQuadraticArrayList<CanBeInMatrix> (zero, m, 1)
         for (i in 0 until m) arr[i][0] = _arr[i]
     }
+
     @Throws(MRV.MATRIX_DIMENSION_MISSMATCH::class)
     fun plus(right: Matrix): Matrix {
         val left : Matrix = this
         if (left.m == right.m && left.n == right.n) {
             val m = left.m
             val n = left.n
-            val arr = newQuadraticArrayList<Double>(0.0, m, n)
+            val zero = newNumber(0.0)
+            val arr = newQuadraticArrayList<CanBeInMatrix>(zero, m, n)
             for (i in 0 until m) for (j in 0 until n) arr[i][j] = left.arr[i][j] + right.arr[i][j]
             return Matrix(arr)
         } else throw MRV.MATRIX_DIMENSION_MISSMATCH()
@@ -61,7 +68,8 @@ open class Matrix : MathObject {
             val m = left.m
             val n = left.n
             val p = right.n
-            val arr = newQuadraticArrayList<Double>(0.0, m, p)
+            val zero = newNumber(0.0)
+            val arr = newQuadraticArrayList<CanBeInMatrix>(zero, m, p)
             for (i in 0 until m) for (j in 0 until p) for (k in 0 until n) arr[i][j] += left.arr[i][k] * right.arr[k][j]
             Matrix(arr)
         } else throw MRV.MATRIX_DIMENSION_MISSMATCH()
@@ -69,25 +77,25 @@ open class Matrix : MathObject {
 
     //прибавляем к a b
     @Throws(MRV.INVALID_NUMBER_STRING::class)
-    protected open fun summ_strings(a: Int, b: Int, k: Double) {
+    protected open fun summ_strings(a: Int, b: Int, k: CanBeInMatrix) {
         if (0 <= a && a < m && 0 <= b && b < m) {
-            for (i in 0 until n) arr[a][i] += k * arr[b][i]
+            for (i in 0 until n) arr[a][i] += arr[b][i] * k
             log_this("Прибавляем к " + (a + 1) + " строке " + (b + 1) + " строку, умноженную на " + k)
         } else throw MRV.INVALID_NUMBER_STRING()
     }
 
     @Throws(MRV.INVALID_NUMBER_STRING::class)
     protected open fun is_null_string(a: Int): Boolean {
-        return if (0 <= a && a < m) {
-            for (i in 0 until n) if (arr[a][i] != 0.0) return false
-            true
+        if (0 <= a && a < m) {
+            for (i in 0 until n) if (!arr[a][i].equals(0.0)) return false
+            return true
         } else throw MRV.INVALID_NUMBER_STRING()
     }
 
     @Throws(MRV.INVALID_NUMBER_STRING::class)
     protected fun swap_strings(a: Int, b: Int) {
         if (0 <= a && a < m && 0 <= b && b < m) {
-            cof_det *= -1.0
+            cof_det = cof_det * newNumber(-1.0)
             for (i in 0 until n) {
                 val first = arr[a][i]
                 val second = arr[b][i]
@@ -99,7 +107,8 @@ open class Matrix : MathObject {
 
     protected open fun delete_string(a: Int) {
         if (0 <= a && a < m) {
-            val temp = newQuadraticArrayList<Double>(0, m-1, n)
+            val zero = newNumber(0.0)
+            val temp = newQuadraticArrayList<CanBeInMatrix>(zero, m-1, n)
             for (i in 0 until a) for (j in 0 until n) temp[i][j] = arr[i][j]
             for (i in a + 1 until m) for (j in 0 until n) temp[i - 1][j] = arr[i][j]
             arr = temp
@@ -110,7 +119,8 @@ open class Matrix : MathObject {
     @Throws(MRV.INVALID_NUMBER_STRING::class)
     protected fun delete_column(a: Int) {
         if (0 <= a && a < n) {
-            val temp = newQuadraticArrayList<Double>(0.0, m, n-1)
+            val zero = newNumber(0.0)
+            val temp = newQuadraticArrayList<CanBeInMatrix>(zero, m, n-1)
             for (i in 0 until m) for (j in 0 until a) temp[i][j] = arr[i][j]
             for (i in 0 until m) for (j in a + 1 until n) temp[i][j - 1] = arr[i][j]
             arr = temp
@@ -131,25 +141,25 @@ open class Matrix : MathObject {
     protected fun find_non_zero_in_column(column: Int, start: Int): Int {
         return if (0 <= column && column < n) {
             for (i in start until m) {
-                if (arr[i][column] != 0.0) return i
+                if (!arr[i][column].equals( 0.0)) return i
             }
             -1
         } else throw MRV.INVALID_NUMBER_STRING()
     }
 
     @Throws(MRV.INVALID_NUMBER_STRING::class)
-    protected open fun mult_string(a: Int, k: Double) {
+    protected open fun mult_string(a: Int, k: CanBeInMatrix) {
         if (0 <= a && a < m) {
-            for (i in 0 until n) arr[a][i] *= k
+            for (i in 0 until n) arr[a][i] = arr[a][i]* k
             log_this("Умножаем " + (a + 1) + " строку на " + k)
             cof_det = cof_det / k
         } else throw MRV.INVALID_NUMBER_STRING()
     }
 
     @Throws(MRV.INVALID_NUMBER_STRING::class)
-    protected open fun div_string(a: Int, k: Double) {
+    protected open fun div_string(a: Int, k: CanBeInMatrix) {
         if (0 <= a && a < m) {
-            for (i in 0 until n) arr[a][i] /= k
+            for (i in 0 until n) arr[a][i] = arr[a][i] / k
             log_this("Делим " + (a + 1) + " строку на " + k)
             cof_det = cof_det * k
         } else throw MRV.INVALID_NUMBER_STRING()
@@ -163,10 +173,10 @@ open class Matrix : MathObject {
         log_this("Мы добились того, что под главной диагональю одни нули. Осталось добиться того же над главной диагональю, где это возможно")
         for (i in m - 1 downTo 1) {
             val f = find_non_zero_in_column(i, 0)
-            if (arr[i][i] != 0.0 && f != i && f != -1) {
+            if (!arr[i][i].equals(0.0) && f != i && f != -1) {
                 for (j in i - 1 downTo 0) {
                     add(
-                        "k" + j + "= -a" + j + i + " / a" + i + i + "=" + -arr[j][i] + " / " + arr[i][i] + " = " + -arr[j][i] / arr[i][i],
+                        "k" + j + "= -a" + j + i + " / a" + i + i + "=" + -arr[j][i] + " / " + arr[i][i] + " = " + (-arr[j][i] / arr[i][i]),
                         ""
                     )
                     val k = -arr[j][i] / arr[i][i]
@@ -177,12 +187,14 @@ open class Matrix : MathObject {
             }
         }
         log_this("Теперь и над, и под главной диагональю нули. Осталось добиться того, чтобы на главной диагонали были только единицы.")
-        for (i in 0 until m) if (arr[i][i] != 0.0) div_string(i, arr[i][i])
+        for (i in 0 until m) if (!arr[i][i].equals(0.0) && !arr[i][i].equals(1.0)) div_string(i, arr[i][i])
     }
 
     //проверяет, является ли матрица единичной в главной части(квадратной подматрице)
     protected fun is_single(): Boolean {
-        for (i in 0 until m) for (j in 0 until m) if (arr[i][j] != (if (i == j) 1.0 else 0.0)) return false
+        val one = newNumber(1.0)
+        val zero = newNumber(0.0)
+        for (i in 0 until m) for (j in 0 until m) if (arr[i][j] != (if (i == j) one else zero)) return false
         return true
     }
 
@@ -194,7 +206,7 @@ open class Matrix : MathObject {
         var i = 0
         while (i < local_m - 1 && i < local_n - 1) {
             val f = find_non_zero_in_column(i, i + 1)
-            if (arr[i][i] != 0.0 && f != -1) {
+            if (!arr[i][i].equals(0.0) && f != -1) {
                 for (j in i + 1 until m) {
                     add(
                         "k" + (j + 1) + "= -a" + (j + 1) + (i + 1) + " / a" + (i + 1) + (i + 1) + "=" + -arr[j][i] + " / " + arr[i][i] + " = " + -arr[j][i] / arr[i][i],
@@ -238,7 +250,8 @@ open class Matrix : MathObject {
             var a = 0
             var b = 0
             val m_new = m - str.size
-            val temp_arr : ArrayList<ArrayList<Double>> = newQuadraticArrayList(0.0, m_new, m_new)
+            val zero = newNumber(0.0)
+            val temp_arr : ArrayList<ArrayList<CanBeInMatrix>> = newQuadraticArrayList(zero, m_new, m_new)
             while (k < m_new * m_new) {
                 var crossed_out = false
                 for (j in str) if (a == j) {
@@ -267,7 +280,8 @@ open class Matrix : MathObject {
             val a = 0
             val b = 0
             val m_new = str.size
-            val temp_arr : ArrayList<ArrayList<Double>> = newQuadraticArrayList(0.0, m_new, m_new)
+            val zero = newNumber(0.0)
+            val temp_arr : ArrayList<ArrayList<CanBeInMatrix>> = newQuadraticArrayList(zero, m_new, m_new)
             var i = 0
             while (i < m && k < m_new * m_new) {
                 var j = 0
@@ -296,7 +310,8 @@ open class Matrix : MathObject {
     protected fun count_null_in_string(a: Int): Int {
         return if (0 <= a && a < m) {
             var count = 0
-            for (i in 0 until n) if (arr[a][i] == 0.0) count++
+            val zero = newNumber(0.0)
+            for (i in 0 until n) if (arr[a][i] == zero) count++
             count
         } else throw MRV.INVALID_NUMBER_STRING()
     }
@@ -305,7 +320,8 @@ open class Matrix : MathObject {
     protected fun count_null_in_column(a: Int): Int {
         return if (0 <= a && a < m) {
             var count = 0
-            for (i in 0 until m) if (arr[i][a] == 0.0) count++
+            val zero = newNumber(0.0)
+            for (i in 0 until m) if (arr[i][a] == zero) count++
             count
         } else throw MRV.INVALID_NUMBER_STRING()
     }
@@ -333,7 +349,7 @@ open class Matrix : MathObject {
     }
 
     @Throws(MRV.INVALID_NUMBER_STRING::class, MRV.NON_QUADRATIC_MATRIX::class)
-    protected fun algebraic_complement(a: Int, b: Int): Double {
+    protected fun algebraic_complement(a: Int, b: Int): CanBeInMatrix {
         return if (0 <= a && a < m && 0 <= b && b < n) {
             add(
                 "",
@@ -345,8 +361,8 @@ open class Matrix : MathObject {
                 "",
                 "Получаем минор вычеркнув " + (a + 1) + " строку и " + (b + 1) + " столбец. Вычислим его определитель."
             )
-            val minor_determinant: Double = minor.determinant()
-            val value = Math.pow(-1.0, (a + b).toDouble()) * minor_determinant
+            val minor_determinant = minor.determinant()
+            val value = minor_determinant * newNumber(Math.pow(-1.0, (a + b).toDouble()))
             add(
                 "A" + (a + 1) + (b + 1) + " = " + minor_determinant + "*" + "-1^(" + (a + 1) + "+" + (b + 1) + ") = " + value,
                 ""
@@ -356,7 +372,7 @@ open class Matrix : MathObject {
     }
 
     @Throws(MRV.NON_QUADRATIC_MATRIX::class, MRV.INVALID_NUMBER_STRING::class)
-    public fun determinant(): Double {
+    public fun determinant(): CanBeInMatrix {
         if (m == n) {
             try {
                 val cur_method: Det = matrix.Det.get_det_method(m);
@@ -367,14 +383,14 @@ open class Matrix : MathObject {
                     Det.TRIANGLE -> det_with_triangle();
                 };
             } catch (ignored: MRV.MATRIX_DIMENSION_MISSMATCH) {
-                return 0.0;
+                return newNumber(0.0)
             }
         } else throw MRV.NON_QUADRATIC_MATRIX();
     }
 
     @Throws(NON_QUADRATIC_MATRIX::class, MATRIX_DIMENSION_MISSMATCH::class)
-    fun det_with_basic_rules(): Double {
-        var det = 0.0
+    fun det_with_basic_rules(): CanBeInMatrix {
+        var det = newNumber(0.0)
         return if (m == n) {
             if (m == 1) {
                 log_this("Определитель матрицы из одного элемента равен этому элеменету.")
@@ -393,7 +409,7 @@ open class Matrix : MathObject {
     }
 
     @Throws(MATRIX_DIMENSION_MISSMATCH::class)
-    fun det_with_saruss_rule(): Double {
+    fun det_with_saruss_rule(): CanBeInMatrix {
         return if (m == n && m == 3) {
             var det =
                 arr[0][0] * arr[1][1] * arr[2][2] + arr[0][1] * arr[1][2] * arr[2][0] + arr[0][2] * arr[1][0] * arr[2][1]
@@ -414,14 +430,14 @@ open class Matrix : MathObject {
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
-    fun det_with_triangle(): Double {
+    fun det_with_triangle(): CanBeInMatrix {
         val copy = Matrix(arr)
         copy.triangular_transformation()
-        var det = 1.0
+        var det = newNumber(1.0)
         var temp = "det = "
         var temp2 = "det = "
         for (i in 0 until m) {
-            det *= copy.arr[i][i]
+            det = det * copy.arr[i][i]
             temp += "a" + (i + 1) + (i + 1) + " * "
             temp2 += copy.arr[i][i].toString() + " * "
         }
@@ -437,20 +453,21 @@ open class Matrix : MathObject {
     }
 
     @Throws(INVALID_NUMBER_STRING::class, NON_QUADRATIC_MATRIX::class)
-    fun det_with_laplass(): Double {
+    fun det_with_laplass(): CanBeInMatrix {
         val str = find_most_null_string()
         val col = find_most_null_column()
-        var det = 0.0
-        val A = newSingleArrayList<Double>(0.0, m) //массив алгебраических дополнений
+        val zero = newNumber(0.0)
+        var det = zero
+        val A = newSingleArrayList<CanBeInMatrix>(zero, m) //массив алгебраических дополнений
         if (str[1] >= col[1]) {
             log_this("Для подсчёта определителя будем использовать разложение в строку. Раскладываем по " + (str[0] + 1) + " строке.")
             for (i in 0 until n) {
-                if (arr[str[0]][i] == 0.0) {
+                if (arr[str[0]][i].equals(0.0)) {
                     add(
                         "",
                         "Так как a" + (str[0] + 1) + (i + 1) + " равно нулю, то считать A" + (str[0] + 1) + (i + 1) + " нет необходимости."
                     )
-                    A[i] = 0.0
+                    A[i] = zero
                 } else A[i] = algebraic_complement(str[0], i)
             }
             var temp = "det = "
@@ -475,8 +492,8 @@ open class Matrix : MathObject {
         } else {
             log_this("Для подсчёта определителя будем использовать разложение в столбец. Раскладываем по " + (col[0] + 1) + " столбцу.")
             for (i in 0 until n) {
-                if (arr[i][col[0]] == 0.0) {
-                    A[i] = 0.0
+                if (arr[i][col[0]].equals(0.0)) {
+                    A[i] = newNumber(0.0)
                     add(
                         "",
                         "Так как a" + (i + 1) + (col[0] + 1) + " равно нулю, то считать A" + (i + 1) + (col[0] + 1) + " нет необходимости."
@@ -509,7 +526,7 @@ open class Matrix : MathObject {
     fun print() {
         for (i in 0 until m) {
             var temp = ""
-            for (j in 0 until n) temp = temp + java.lang.Double.toString(arr[i][j]) + " "
+            for (j in 0 until n) temp = temp + arr[i][j] + " "
             println(temp)
         }
     }
@@ -521,7 +538,7 @@ open class Matrix : MathObject {
         add("", "Ранг равен количеству ненулевых элементов на главной диагонали")
         var count = 0
         for (i in 0 until m) {
-            if (copy.arr[i][i] != 0.0) count++
+            if (!copy.arr[i][i].equals( 0.0)) count++
         }
         return count
     }
@@ -536,7 +553,7 @@ open class Matrix : MathObject {
         while (i < m && !end) {
             var j = 0
             while (j < n && !end) {
-                if (arr[i][j] != 0.0) {
+                if (!arr[i][j].equals( 0.0)) {
                     a = i
                     b = i
                     end = true
@@ -547,7 +564,7 @@ open class Matrix : MathObject {
         }
         add("a" + (a + 1) + (b + 1) + '\u2260' + " 0 ", "")
         add("", "Теперь рассмотрим все миноры, в которые входит данный элемент.")
-        val temp_arr = newQuadraticArrayList<Double>(0.0, 1, 1)
+        val temp_arr = newQuadraticArrayList<CanBeInMatrix>(newNumber(0.0), 1, 1)
         var cur_minor = Matrix(temp_arr)
         var cur_str = arrayOfNulls<Int>(1)
         var cur_col = arrayOfNulls<Int>(1)
@@ -571,13 +588,13 @@ open class Matrix : MathObject {
                         temp_col[cur_minor.m] = j
                         val minor = minor(temp_str, temp_col)
                         minor.log_this("Проверим минор.")
-                        var det = 0.0
+                        var det = newNumber(0.0)
                         try {
                             det = minor.determinant()
                         } catch (ignored: NON_QUADRATIC_MATRIX) {
                         } catch (ignored: INVALID_NUMBER_STRING) {
                         }
-                        if (det != 0.0) {
+                        if (det != newNumber(0.0)) {
                             cur_minor = minor
                             cur_minor.log_this("Так как этот минор не равен нулю, то теперь мы будем рассматривать миноры, которые включают его")
                             cur_str = temp_str
@@ -595,7 +612,8 @@ open class Matrix : MathObject {
     }
 
     fun Transposition() {
-        val new_arr = newQuadraticArrayList<Double>(0.0, n, m)
+        val zero = newNumber(0.0)
+        val new_arr = newQuadraticArrayList<CanBeInMatrix>(zero, n, m)
         for (i in 0 until m) for (j in 0 until n) new_arr[j][i] = arr[i][j]
         arr = new_arr
         val temp = n
@@ -627,7 +645,7 @@ open class Matrix : MathObject {
         } else throw NON_QUADRATIC_MATRIX()
     }
 
-    override fun decode_this(): String {
+    override fun toString(): String {
         var decode = ""
         for (i in 0 until m) {
             for (j in 0 until n) decode += arr[i][j].toString() + " "

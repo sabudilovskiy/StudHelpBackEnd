@@ -13,10 +13,10 @@ class LinearSpace : MathObject{
         }
         base = arr;
     }
-    override fun decode_this(): String {
+    override fun toString(): String {
         var temp : String = ""
         for (vector in base){
-            temp += vector.decode_this()+"\n"
+            temp += vector.toString()+"\n"
         }
         return temp
     }

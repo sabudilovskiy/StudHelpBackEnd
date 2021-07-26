@@ -13,11 +13,11 @@ class AffineSpace(_v0: Matrix, arr: ArrayList<Matrix>) : MathObject() {
             if (vector.m != m || vector.n != 1) throw MRV.MATRIX_ERROR()
         }
     }
-    override fun decode_this(): String {
+    override fun toString(): String {
         var temp : String = ""
-        temp+=v0.decode_this()
+        temp+=v0.toString()
         for (vector in base) {
-            temp+=vector.decode_this()+"\n"
+            temp+=vector.toString()+"\n"
         }
         return temp
     }

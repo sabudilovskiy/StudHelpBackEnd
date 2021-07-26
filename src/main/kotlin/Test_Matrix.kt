@@ -1,13 +1,16 @@
+import CanBeInMatrix.CanBeInMatrix
 import Logger.Log.print_log
+import MRV.MRV
 import MRV.MRV.HAVE_NOT_SOLUTIONS
 import MRV.MRV.INVALID_NUMBER_STRING
 import MRV.MRV.MATRIX_DIMENSION_MISSMATCH
 import MRV.MRV.NON_SINGLE
-import MRV.MRV.`NON-COMPLIANCE_TYPES`
 import MathObject.MathObject.MathObject
 import Matrix.AugmentedMatrix
+import Number.newNumber
 import Settings.matrix.Det.setBorder
 import Settings.matrix.Det.setdefaultSettings
+import Support.newQuadraticArrayList
 import java.util.*
 
 object Test_Matrix {
@@ -26,20 +29,16 @@ object Test_Matrix {
         val n: Int
         println("Введите n: ")
         n = scan.nextLine().toInt()
-        val arr = Array(m) { DoubleArray(n) }
-        val augmenated_arr = Array(m) {
-            DoubleArray(
-                1
-            )
-        }
+        val arr = newQuadraticArrayList<CanBeInMatrix>(newNumber(0.0), m, n)
+        val augmenated_arr = newQuadraticArrayList<CanBeInMatrix>(newNumber(0.0), m, 1)
         for (i in 0 until m) {
             var temp = "Введите " + (i + 1) + " строку: "
             println(temp)
             val buffer = scan.nextLine().split(" ".toRegex()).toTypedArray()
-            for (j in 0 until n) arr[i][j] = buffer[j].toDouble()
+            for (j in 0 until n) arr[i][j] = newNumber(buffer[j].toDouble())
             temp = "Введите " + (i + 1) + " свободный член: "
             println(temp)
-            augmenated_arr[i][0] = scan.nextLine().toDouble()
+            augmenated_arr[i][0] = newNumber(scan.nextLine().toDouble())
         }
         val temp = AugmentedMatrix(arr, augmenated_arr)
         setdefaultSettings()
@@ -48,7 +47,7 @@ object Test_Matrix {
         try {
             temp2 = temp.solve_system()
         } catch (ignored: MATRIX_DIMENSION_MISSMATCH) {
-        } catch (ignored: `NON-COMPLIANCE_TYPES`) {
+        } catch (ignored: MRV.NON_COMPLIANCE_TYPES) {
         } finally {
             temp2?.log_this("")
             print_log()

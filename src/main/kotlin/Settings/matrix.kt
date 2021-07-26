@@ -2,7 +2,7 @@ package Settings
 
 import MRV.MRV
 
-class matrix {
+object matrix {
     object Det {
         private val settings : ArrayList<Parameters.Det> = arrayListOf()
         private var border = 5

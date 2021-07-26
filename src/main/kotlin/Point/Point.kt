@@ -1,26 +1,30 @@
 package Point
 
+import CanBeInMatrix.CanBeInMatrix
 import MathObject.MathObject.MathObject
-import Support.new_arraylist
+import Number.newNumber
+import Support.newSingleArrayList
 
 class Point : MathObject{
-    var coords = ArrayList<Double>(0)
+    var coords = ArrayList<CanBeInMatrix>(0)
     var n = 0
 
     internal constructor(n: Int) {
-        coords = new_arraylist(0, n)
+        coords = newSingleArrayList(newNumber(0.0), n)
         this.n = n
     }
 
-    internal constructor(arr: ArrayList<Double>) {
-        coords = arr
-        n = arr.size
+    constructor(arr: MutableList<Double>) {
+        coords = newSingleArrayList(newNumber(0.0),arr.size)
+        for (i in 0 until arr.size) coords[i] = newNumber(arr[i])
     }
-
-    fun getCoord(i: Int): Double {
+    constructor(_arr: ArrayList<CanBeInMatrix>){
+        coords = _arr
+    }
+    fun getCoord(i: Int): CanBeInMatrix {
         return if (0 <= i && i < n) coords[i] else throw IllegalArgumentException()
     }
-    override fun decode_this(): String {
+    override fun toString(): String {
         var temp : String = "("
         for (i in coords){
             temp += "$i , "

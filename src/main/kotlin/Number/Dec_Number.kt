@@ -1,45 +1,45 @@
 package Number
 
-import CanBeInMatrix.CanBeInMatrix
+import MathObject.Division_Ring
 import MRV.MRV
 import Matrix.Matrix
 
-class Dec_Number : CanBeInMatrix {
+class Dec_Number : Division_Ring {
     var value : Double = 0.0
     constructor(_value : Double){
         value = _value
     }
 
-    override fun plus(right: CanBeInMatrix): CanBeInMatrix {
+    override fun plus(right: Division_Ring): Division_Ring {
         if (right is Dec_Number){
-            return newNumber(value+right.value)
+            return createNumber(value+right.value)
         }
         else{
             throw MRV.NON_COMPLIANCE_TYPES()
         }
     }
 
-    override fun minus(right: CanBeInMatrix): CanBeInMatrix {
+    override fun minus(right: Division_Ring): Division_Ring {
         if (right is Dec_Number){
-            return newNumber(value-right.value)
+            return createNumber(value-right.value)
         }
         else{
             throw MRV.NON_COMPLIANCE_TYPES()
         }
     }
 
-    override fun times(right: CanBeInMatrix): CanBeInMatrix {
+    override fun times(right: Division_Ring): Division_Ring {
         if (right is Dec_Number){
-            return newNumber(value*right.value)
+            return createNumber(value*right.value)
         }
         else if (right is Matrix){
             return right*this
         }
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
-    override fun div(right: CanBeInMatrix): CanBeInMatrix {
+    override fun div(right: Division_Ring): Division_Ring {
         if (right is Dec_Number){
-            return newNumber(value/right.value)
+            return createNumber(value/right.value)
         }
         else if (right is Matrix){
             return right*this
@@ -54,7 +54,7 @@ class Dec_Number : CanBeInMatrix {
         else return false
     }
 
-    override fun unaryMinus() : CanBeInMatrix{
+    override fun unaryMinus() : Division_Ring {
         return Dec_Number(-value)
     }
 

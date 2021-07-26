@@ -1,12 +1,12 @@
 package Number
 
-import CanBeInMatrix.CanBeInMatrix
+import MathObject.Division_Ring
 import MRV.MRV
 import Support.find_GCD
 import java.lang.Math.abs
 
 
-class FractionalNumber : CanBeInMatrix{
+class FractionalNumber : Division_Ring {
     var numerator : Long = 1;
     var denominator : Long = 1;
     constructor(value : Long){
@@ -34,7 +34,7 @@ class FractionalNumber : CanBeInMatrix{
         else numerator = 0L
 
     }
-    override operator fun plus(right : CanBeInMatrix) : CanBeInMatrix{
+    override operator fun plus(right : Division_Ring) : Division_Ring {
         if (right is FractionalNumber) {
             val left: FractionalNumber = this
             var GCD: Long = find_GCD(left.denominator, right.denominator)
@@ -43,7 +43,7 @@ class FractionalNumber : CanBeInMatrix{
         }
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
-    override operator fun minus(right : CanBeInMatrix) : CanBeInMatrix{
+    override operator fun minus(right : Division_Ring) : Division_Ring {
         if (right is FractionalNumber){
             val left : FractionalNumber = this
             var GCD : Long = find_GCD(left.denominator, right.denominator)
@@ -52,7 +52,7 @@ class FractionalNumber : CanBeInMatrix{
         }
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
-    override operator fun times(right : CanBeInMatrix) : CanBeInMatrix{
+    override operator fun times(right : Division_Ring) : Division_Ring {
         if (right is FractionalNumber){
             val left : FractionalNumber = this
             var left_numerator = left.numerator
@@ -75,7 +75,7 @@ class FractionalNumber : CanBeInMatrix{
         }
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
-    override fun div(right: CanBeInMatrix): CanBeInMatrix {
+    override fun div(right: Division_Ring): Division_Ring {
         if (right is FractionalNumber) return this/right
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
@@ -87,7 +87,7 @@ class FractionalNumber : CanBeInMatrix{
         else return false
     }
 
-    override fun unaryMinus() : CanBeInMatrix{
+    override fun unaryMinus() : Division_Ring {
         return FractionalNumber(-numerator, denominator)
     }
 

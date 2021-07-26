@@ -1,6 +1,7 @@
 package Settings
 
 import MRV.MRV
+import Parameters.Rank
 
 object matrix {
     object Det {
@@ -44,7 +45,15 @@ object matrix {
         }
     }
 
-    class Inverse
+    object Inverse{
+        private var Settings = Parameters.Inverse.GAUSS
+        fun getSettings() : Parameters.Inverse{
+            return Settings
+        }
+        fun setSettings(_settings: Parameters.Inverse){
+            Settings = _settings
+        }
+    }
     object SLE {
         private var Settings = Parameters.SLE.GAUSS
         fun getSettings(): Parameters.SLE {

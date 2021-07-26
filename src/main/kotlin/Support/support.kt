@@ -14,7 +14,7 @@ inline fun <reified T> newSingleArrayList(something : T, n : Int) : ArrayList <T
     else throw IllegalArgumentException()
 
 }
-inline fun <reified T> newQuadraticArrayList(something: T, m: Int, n: Int) : ArrayList<ArrayList<T>> {
+inline fun <reified T> createRectangleArrayList(something: T, m: Int, n: Int) : ArrayList<ArrayList<T>> {
     val array : ArrayList<ArrayList<T>> = arrayListOf()
     if (n > 0) {
         var i : Int = 0;

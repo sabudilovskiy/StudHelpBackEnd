@@ -1,7 +1,7 @@
 package Matrix
 
 import AffineSpace.AffineSpace
-import CanBeInMatrix.CanBeInMatrix
+import MathObject.Division_Ring
 import Number.FractionalNumber
 import LinearSpace.LinearSpace
 import Logger.Log.add
@@ -11,17 +11,17 @@ import MRV.MRV.INVALID_NUMBER_STRING
 import MRV.MRV.MATRIX_DIMENSION_MISSMATCH
 import MRV.MRV.NON_SINGLE
 import MathObject.MathObject.MathObject
-import Number.newNumber
+import Number.createNumber
 import Parameters.SLE
 import Point.Point
 import Settings.matrix.SLE.getSettings
-import Support.newQuadraticArrayList
+import Support.createRectangleArrayList
 import Support.newSingleArrayList
 
 class AugmentedMatrix : Matrix {
     protected var augmented_n = 0
-    lateinit var augmented_arr: ArrayList<ArrayList<CanBeInMatrix>>
-    constructor(arr: ArrayList<ArrayList<CanBeInMatrix>>, augmented_arr: ArrayList<ArrayList<CanBeInMatrix>>) : super(arr) {
+    lateinit var augmented_arr: ArrayList<ArrayList<Division_Ring>>
+    constructor(arr: ArrayList<ArrayList<Division_Ring>>, augmented_arr: ArrayList<ArrayList<Division_Ring>>) : super(arr) {
         this.augmented_arr = augmented_arr
         val augmented_m = augmented_arr.size
         if (augmented_m == m) {
@@ -39,7 +39,7 @@ class AugmentedMatrix : Matrix {
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
-    override fun summ_strings(a: Int, b: Int, k: CanBeInMatrix) {
+    override fun summ_strings(a: Int, b: Int, k: Division_Ring) {
         for (i in 0 until augmented_n) augmented_arr[a][i] += augmented_arr[b][i] * k
         super.summ_strings(a, b, k)
     }
@@ -64,20 +64,20 @@ class AugmentedMatrix : Matrix {
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
-    override fun mult_string(a: Int, k: CanBeInMatrix) {
+    override fun mult_string(a: Int, k: Division_Ring) {
         for (i in 0 until augmented_n) augmented_arr[a][i] = augmented_arr[a][i] * k
         super.mult_string(a, k)
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
-    override fun div_string(a: Int, k: CanBeInMatrix) {
+    override fun div_string(a: Int, k: Division_Ring) {
         for (i in 0 until augmented_n) augmented_arr[a][i] = augmented_arr[a][i] / k
         super.div_string(a, k)
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
     override fun rank(): Int {
-        val temp_arr = newQuadraticArrayList<CanBeInMatrix>(FractionalNumber(0.0), m, n+augmented_n)
+        val temp_arr = createRectangleArrayList<Division_Ring>(FractionalNumber(0.0), m, n+augmented_n)
         for (i in 0 until m) for (j in 0 until n + augmented_n) {
             if (j < n) temp_arr[i][j] = arr[i][j] else temp_arr[i][j] = augmented_arr[i][j - n]
         }
@@ -100,8 +100,8 @@ class AugmentedMatrix : Matrix {
     }
 
     override fun delete_string(a: Int) {
-        val zero = newNumber(0.0)
-        val temp = newQuadraticArrayList<CanBeInMatrix>(zero, m-1, augmented_n)
+        val zero = createNumber(0.0)
+        val temp = createRectangleArrayList<Division_Ring>(zero, m-1, augmented_n)
         for (i in 0 until a) for (j in 0 until augmented_n) temp[i][j] = augmented_arr[i][j]
         for (i in a + 1 until m) for (j in 0 until augmented_n) temp[i - 1][j] = augmented_arr[i][j]
         augmented_arr = temp
@@ -109,7 +109,7 @@ class AugmentedMatrix : Matrix {
     }
 
     protected fun reset_augmented() {
-        augmented_arr = newQuadraticArrayList(newNumber(0.0), m, 1)
+        augmented_arr = createRectangleArrayList(createNumber(0.0), m, 1)
     }
 
     protected fun is_homogeneous(): Boolean {
@@ -119,10 +119,10 @@ class AugmentedMatrix : Matrix {
     }
 
     @Throws(MATRIX_DIMENSION_MISSMATCH::class, NON_SINGLE::class)
-    fun substituion(array: ArrayList<CanBeInMatrix>): Matrix {
-        return if (n - m == array.size && augmented_n == 1) {
+    fun substituion(array: ArrayList<Division_Ring>): Matrix {
+        if (n - m == array.size && augmented_n == 1) {
             if (is_single()) {
-                val cof : ArrayList<CanBeInMatrix> = newSingleArrayList<CanBeInMatrix> (newNumber(0.0), n)
+                val cof : ArrayList<Division_Ring> = newSingleArrayList<Division_Ring> (createNumber(0.0), n)
                 for (i in m until n) cof[i] = array[i - m]
                 for (i in 0 until m) {
                     var temp1 = "x" + (i + 1) + " = "
@@ -147,7 +147,7 @@ class AugmentedMatrix : Matrix {
                     add(temp2, "")
                     add("x" + (i + 1) + " = " + cof[i], "")
                 }
-                Matrix(cof)
+                return create_vector_str(cof)
             } else throw NON_SINGLE()
         } else throw MATRIX_DIMENSION_MISSMATCH()
     }
@@ -168,7 +168,7 @@ class AugmentedMatrix : Matrix {
                 copy.gauss_transformation()
                 copy.reduce_null_strings()
                 if (m == n) {
-                    val answer : ArrayList<CanBeInMatrix> = newSingleArrayList<CanBeInMatrix>(newNumber(0.0), n)
+                    val answer : ArrayList<Division_Ring> = newSingleArrayList<Division_Ring>(createNumber(0.0), n)
                     for (i in 0 until n) if (arr[i][i].equals(1.0)) answer[i] = augmented_arr[0][i] else throw HAVE_NOT_SOLUTIONS()
                     return Point(answer)
                 } else {
@@ -179,8 +179,8 @@ class AugmentedMatrix : Matrix {
                             "Так как СЛАУ является однородной и прямоугольной, то она задаёт линейное подпространство(оболочку). Найдём базис."
                         )
                         for (i in 0 until n - m) {
-                            val cords_vector = newSingleArrayList(newNumber(0.0),n - m)
-                            cords_vector[i] = newNumber(1.0)
+                            val cords_vector = newSingleArrayList(createNumber(0.0),n - m)
+                            cords_vector[i] = createNumber(1.0)
                             for (j in m until n) add("x" + (j + 1) + " = " + cords_vector[j], "")
                             for (j in 0 until m) {
                                 base[i] = substituion(cords_vector)
@@ -194,13 +194,13 @@ class AugmentedMatrix : Matrix {
                             "Так как СЛАУ является неоднородной и прямоугольной, то она задаёт линейное многообразие. Найдём базис."
                         )
                         add("", "Найдём частное решение")
-                        val v = substituion(newSingleArrayList(newNumber(0.0), n - m))
+                        val v = substituion(newSingleArrayList(createNumber(0.0), n - m))
                         v.log_this("Это вектор, на который перенесёно линейное подпространство")
                         copy.reset_augmented()
                         copy.log_this("Найдём базис соответствующего пространства. Для этого обнулим столбец свободных членов.")
                         for (i in 0 until n - m) {
-                            val cords_vector = newSingleArrayList<CanBeInMatrix>(newNumber(0.0),n - m)
-                            cords_vector[i] = newNumber(1.0)
+                            val cords_vector = newSingleArrayList<Division_Ring>(createNumber(0.0),n - m)
+                            cords_vector[i] = createNumber(1.0)
                             for (j in m until n) add("x" + (j + 1) + " = " + cords_vector[j - m], "")
                             for (j in 0 until m) {
                                 base[i] = substituion(cords_vector)
@@ -212,7 +212,7 @@ class AugmentedMatrix : Matrix {
                              temp = AffineSpace(v, base)
                         }
                         catch (matrix_error : MRV.MATRIX_ERROR){
-                            println("Залупа")
+                            println("Этого не должно было произойти")
                         }
                         return temp!!
                     }
@@ -220,4 +220,5 @@ class AugmentedMatrix : Matrix {
             }
         } else throw MATRIX_DIMENSION_MISSMATCH()
     }
+
 }

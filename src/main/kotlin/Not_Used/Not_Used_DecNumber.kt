@@ -1,6 +1,6 @@
 package Not_Used
 
-import MathObject.Division_Ring
+import MathObject.Ring
 import Number.FractionalNumber
 import java.lang.Math.pow
 
@@ -41,19 +41,19 @@ class Not_Used_DecNumber() {
         temp = (temp%pow(10.0,count_after_comma.toDouble())).toDouble()
         period = temp.toDouble()
     }
-     fun plus(right: Division_Ring): Division_Ring {
+     fun plus(right: Ring): Ring {
         TODO("Not yet implemented")
     }
 
-     fun minus(right: Division_Ring): Division_Ring {
+     fun minus(right: Ring): Ring {
         TODO("Not yet implemented")
     }
 
-     fun times(right: Division_Ring): Division_Ring {
+     fun times(right: Ring): Ring {
         TODO("Not yet implemented")
     }
 
-     fun times(right: Double): Division_Ring {
+     fun times(right: Double): Ring {
         TODO("Not yet implemented")
     }
 

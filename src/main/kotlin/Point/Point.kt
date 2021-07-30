@@ -1,12 +1,12 @@
 package Point
 
-import MathObject.Division_Ring
+import MathObject.Ring
 import MathObject.MathObject.MathObject
 import Number.createNumber
 import Support.newSingleArrayList
 
 class Point : MathObject{
-    var coords = ArrayList<Division_Ring>(0)
+    var coords = ArrayList<Ring>(0)
     var n = 0
 
     internal constructor(n: Int) {
@@ -18,10 +18,10 @@ class Point : MathObject{
         coords = newSingleArrayList(createNumber(0.0),arr.size)
         for (i in 0 until arr.size) coords[i] = createNumber(arr[i])
     }
-    constructor(_arr: ArrayList<Division_Ring>){
+    constructor(_arr: ArrayList<Ring>){
         coords = _arr
     }
-    fun getCoord(i: Int): Division_Ring {
+    fun getCoord(i: Int): Ring {
         return if (0 <= i && i < n) coords[i] else throw IllegalArgumentException()
     }
     override fun toString(): String {

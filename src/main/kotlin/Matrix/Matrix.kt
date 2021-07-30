@@ -1,7 +1,7 @@
 package Matrix
 
 import Logger.Log
-import MathObject.Division_Ring
+import MathObject.Ring
 import Logger.Log.add
 import MRV.MRV
 import MRV.MRV.DEGENERATE_MATRIX
@@ -22,27 +22,27 @@ import Support.newSingleArrayList
 import java.util.*
 import kotlin.collections.ArrayList
 
-public fun create_vector_str(cords: ArrayList<Division_Ring>): Matrix {
+public fun create_vector_str(cords: ArrayList<Ring>): Matrix {
     val zero = createNumber(0.0)
     val temp = createRectangleArrayList(zero, 1, cords.size)
     for (i in 0 until cords.size) temp[0][i] = cords[i]
     return Matrix(temp)
 }
 
-public fun create_vector_col(cords: ArrayList<Division_Ring>): Matrix {
+public fun create_vector_col(cords: ArrayList<Ring>): Matrix {
     val zero = createNumber(0.0)
     val temp = createRectangleArrayList(zero, cords.size, 1)
     for (i in 0 until cords.size) temp[i][0] = cords[i]
     return Matrix(temp)
 }
 
-open class Matrix : Division_Ring {
+open class Matrix : Ring {
     protected var cof_det = createNumber(1.0)
     var m = 0
     var n = 0
-    lateinit var arr: ArrayList<ArrayList<Division_Ring>>;
+    lateinit var arr: ArrayList<ArrayList<Ring>>;
 
-    constructor(_arr: ArrayList<ArrayList<Division_Ring>>) {
+    constructor(_arr: ArrayList<ArrayList<Ring>>) {
         arr = _arr
         m = _arr.size
         if (m > 0) n = _arr[0].size else n = 0
@@ -52,7 +52,7 @@ open class Matrix : Division_Ring {
     constructor(n: Int) {
         val zero = createNumber(0.0)
         val one = createNumber(1.0)
-        val arr = createRectangleArrayList<Division_Ring>(zero, n, n)
+        val arr = createRectangleArrayList<Ring>(zero, n, n)
         m = n
         this.n = n
         for (i in 0 until n) for (j in 0 until n) if (i == j) arr[i][j] = one
@@ -61,7 +61,7 @@ open class Matrix : Division_Ring {
     @Throws(MRV.MATRIX_DIMENSION_MISSMATCH::class)
 
     //прибавляем к a b
-    protected open fun summ_strings(a: Int, b: Int, k: Division_Ring) {
+    protected open fun summ_strings(a: Int, b: Int, k: Ring) {
         if (0 <= a && a < m && 0 <= b && b < m) {
             for (i in 0 until n) arr[a][i] += arr[b][i] * k
             log_this("Прибавляем к " + (a + 1) + " строке " + (b + 1) + " строку, умноженную на " + k)
@@ -92,7 +92,7 @@ open class Matrix : Division_Ring {
     protected open fun delete_string(a: Int) {
         if (0 <= a && a < m) {
             val zero = createNumber(0.0)
-            val temp = createRectangleArrayList<Division_Ring>(zero, m - 1, n)
+            val temp = createRectangleArrayList<Ring>(zero, m - 1, n)
             for (i in 0 until a) for (j in 0 until n) temp[i][j] = arr[i][j]
             for (i in a + 1 until m) for (j in 0 until n) temp[i - 1][j] = arr[i][j]
             arr = temp
@@ -104,7 +104,7 @@ open class Matrix : Division_Ring {
     protected fun delete_column(a: Int) {
         if (0 <= a && a < n) {
             val zero = createNumber(0.0)
-            val temp = createRectangleArrayList<Division_Ring>(zero, m, n - 1)
+            val temp = createRectangleArrayList<Ring>(zero, m, n - 1)
             for (i in 0 until m) for (j in 0 until a) temp[i][j] = arr[i][j]
             for (i in 0 until m) for (j in a + 1 until n) temp[i][j - 1] = arr[i][j]
             arr = temp
@@ -132,7 +132,7 @@ open class Matrix : Division_Ring {
     }
 
     @Throws(MRV.INVALID_NUMBER_STRING::class)
-    protected open fun mult_string(a: Int, k: Division_Ring) {
+    protected open fun mult_string(a: Int, k: Ring) {
         if (0 <= a && a < m) {
             for (i in 0 until n) arr[a][i] = arr[a][i] * k
             log_this("Умножаем " + (a + 1) + " строку на " + k)
@@ -141,7 +141,7 @@ open class Matrix : Division_Ring {
     }
 
     @Throws(MRV.INVALID_NUMBER_STRING::class)
-    protected open fun div_string(a: Int, k: Division_Ring) {
+    protected open fun div_string(a: Int, k: Ring) {
         if (0 <= a && a < m) {
             for (i in 0 until n) arr[a][i] = arr[a][i] / k
             log_this("Делим " + (a + 1) + " строку на " + k)
@@ -235,7 +235,7 @@ open class Matrix : Division_Ring {
             var b = 0
             val m_new = m - str.size
             val zero = createNumber(0.0)
-            val temp_arr: ArrayList<ArrayList<Division_Ring>> = createRectangleArrayList(zero, m_new, m_new)
+            val temp_arr: ArrayList<ArrayList<Ring>> = createRectangleArrayList(zero, m_new, m_new)
             while (k < m_new * m_new) {
                 var crossed_out = false
                 for (j in str) if (a == j) {
@@ -265,7 +265,7 @@ open class Matrix : Division_Ring {
             val b = 0
             val m_new = str.size
             val zero = createNumber(0.0)
-            val temp_arr: ArrayList<ArrayList<Division_Ring>> = createRectangleArrayList(zero, m_new, m_new)
+            val temp_arr: ArrayList<ArrayList<Ring>> = createRectangleArrayList(zero, m_new, m_new)
             var i = 0
             while (i < m && k < m_new * m_new) {
                 var j = 0
@@ -333,7 +333,7 @@ open class Matrix : Division_Ring {
     }
 
     @Throws(MRV.INVALID_NUMBER_STRING::class, MRV.NON_QUADRATIC_MATRIX::class)
-    protected fun algebraic_complement(a: Int, b: Int): Division_Ring {
+    protected fun algebraic_complement(a: Int, b: Int): Ring {
         return if (0 <= a && a < m && 0 <= b && b < n) {
             add(
                 "",
@@ -356,7 +356,7 @@ open class Matrix : Division_Ring {
     }
 
     @Throws(MRV.NON_QUADRATIC_MATRIX::class, MRV.INVALID_NUMBER_STRING::class)
-    public fun determinant(): Division_Ring {
+    public fun determinant(): Ring {
         if (m == n) {
             try {
                 val cur_method: Det = matrix.Det.get_det_method(m);
@@ -373,7 +373,7 @@ open class Matrix : Division_Ring {
     }
 
     @Throws(NON_QUADRATIC_MATRIX::class, MATRIX_DIMENSION_MISSMATCH::class)
-    fun det_with_basic_rules(): Division_Ring {
+    fun det_with_basic_rules(): Ring {
         var det = createNumber(0.0)
         return if (m == n) {
             if (m == 1) {
@@ -393,7 +393,7 @@ open class Matrix : Division_Ring {
     }
 
     @Throws(MATRIX_DIMENSION_MISSMATCH::class)
-    fun det_with_saruss_rule(): Division_Ring {
+    fun det_with_saruss_rule(): Ring {
         return if (m == n && m == 3) {
             var det =
                 arr[0][0] * arr[1][1] * arr[2][2] + arr[0][1] * arr[1][2] * arr[2][0] + arr[0][2] * arr[1][0] * arr[2][1]
@@ -414,7 +414,7 @@ open class Matrix : Division_Ring {
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
-    fun det_with_triangle(): Division_Ring {
+    fun det_with_triangle(): Ring {
         val copy = Matrix(arr)
         copy.triangular_transformation()
         var det = createNumber(1.0)
@@ -437,7 +437,7 @@ open class Matrix : Division_Ring {
     }
 
     @Throws(INVALID_NUMBER_STRING::class, NON_QUADRATIC_MATRIX::class)
-    fun det_with_laplass(): Division_Ring {
+    fun det_with_laplass(): Ring {
         val str = find_most_null_string()
         val col = find_most_null_column()
         if (str[1] >= col[1]) {
@@ -447,10 +447,10 @@ open class Matrix : Division_Ring {
         }
     }
 
-    fun decompositonWithStr(str: Int): Division_Ring {
+    fun decompositonWithStr(str: Int): Ring {
         val zero = createNumber(0.0)
         var det = zero
-        val A = newSingleArrayList<Division_Ring>(zero, m) //массив алгебраических дополнений
+        val A = newSingleArrayList<Ring>(zero, m) //массив алгебраических дополнений
         log_this("Для подсчёта определителя будем использовать разложение в строку. Раскладываем по " + (str + 1) + " строке.")
         for (i in 0 until n) {
             if (arr[str][i].equals(0.0)) {
@@ -483,10 +483,10 @@ open class Matrix : Division_Ring {
         return det
     }
 
-    fun decompositonWithCol(col: Int): Division_Ring {
+    fun decompositonWithCol(col: Int): Ring {
         val zero = createNumber(0.0)
         var det = zero
-        val A = newSingleArrayList<Division_Ring>(zero, m) //массив алгебраических дополнений
+        val A = newSingleArrayList<Ring>(zero, m) //массив алгебраических дополнений
         log_this("Для подсчёта определителя будем использовать разложение в столбец. Раскладываем по " + (col + 1) + " столбцу.")
         for (i in 0 until n) {
             if (arr[i][col].equals(0.0)) {
@@ -560,7 +560,7 @@ open class Matrix : Division_Ring {
         }
         add("a" + (a + 1) + (b + 1) + '\u2260' + " 0 ", "")
         add("", "Теперь рассмотрим все миноры, в которые входит данный элемент.")
-        val temp_arr = createRectangleArrayList<Division_Ring>(createNumber(0.0), 1, 1)
+        val temp_arr = createRectangleArrayList<Ring>(createNumber(0.0), 1, 1)
         var cur_minor = Matrix(temp_arr)
         var cur_str = arrayOfNulls<Int>(1)
         var cur_col = arrayOfNulls<Int>(1)
@@ -609,7 +609,7 @@ open class Matrix : Division_Ring {
 
     fun Transposition() {
         val zero = createNumber(0.0)
-        val new_arr = createRectangleArrayList<Division_Ring>(zero, n, m)
+        val new_arr = createRectangleArrayList<Ring>(zero, n, m)
         for (i in 0 until m) for (j in 0 until n) new_arr[j][i] = arr[i][j]
         arr = new_arr
         val temp = n
@@ -649,14 +649,14 @@ open class Matrix : Division_Ring {
         } else throw NON_QUADRATIC_MATRIX()
     }
 
-    override fun plus(right: Division_Ring): Division_Ring {
+    override fun plus(right: Ring): Ring {
         if (right is Matrix){
             val left: Matrix = this
             if (left.m == right.m && left.n == right.n) {
                 val m = left.m
                 val n = left.n
                 val zero = createNumber(0.0)
-                val arr = createRectangleArrayList<Division_Ring>(zero, m, n)
+                val arr = createRectangleArrayList<Ring>(zero, m, n)
                 for (i in 0 until m) for (j in 0 until n) arr[i][j] = left.arr[i][j] + right.arr[i][j]
                 return Matrix(arr)
             } else throw MRV.MATRIX_DIMENSION_MISSMATCH()
@@ -664,14 +664,14 @@ open class Matrix : Division_Ring {
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
 
-    override fun minus(right: Division_Ring): Division_Ring {
+    override fun minus(right: Ring): Ring {
         if (right is Matrix){
             val left: Matrix = this
             if (left.m == right.m && left.n == right.n) {
                 val m = left.m
                 val n = left.n
                 val zero = createNumber(0.0)
-                val arr = createRectangleArrayList<Division_Ring>(zero, m, n)
+                val arr = createRectangleArrayList<Ring>(zero, m, n)
                 for (i in 0 until m) for (j in 0 until n) arr[i][j] = left.arr[i][j] - right.arr[i][j]
                 return Matrix(arr)
             } else throw MRV.MATRIX_DIMENSION_MISSMATCH()
@@ -679,7 +679,7 @@ open class Matrix : Division_Ring {
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
 
-    override fun times(right: Division_Ring): Division_Ring {
+    override fun times(right: Ring): Ring {
         if (right is Dec_Number || right is FractionalNumber){
             val copy : Matrix = Matrix(arr)
             for (i in 0 until m) copy.mult_string(i, right)
@@ -692,7 +692,7 @@ open class Matrix : Division_Ring {
                 val n = left.n
                 val p = right.n
                 val zero = createNumber(0.0)
-                val arr = createRectangleArrayList<Division_Ring>(zero, m, p)
+                val arr = createRectangleArrayList<Ring>(zero, m, p)
                 for (i in 0 until m) for (j in 0 until p) for (k in 0 until n) arr[i][j] += left.arr[i][k] * right.arr[k][j]
                 return Matrix(arr)
             } else throw MRV.MATRIX_DIMENSION_MISSMATCH()
@@ -700,7 +700,7 @@ open class Matrix : Division_Ring {
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
 
-    override fun div(right: Division_Ring): Division_Ring {
+    override fun div(right: Ring): Ring {
         if (right is Dec_Number || right is FractionalNumber){
             val copy : Matrix = Matrix(arr)
             for (i in 0 until m) copy.div_string(i, right)
@@ -728,7 +728,7 @@ open class Matrix : Division_Ring {
         else return false
     }
 
-    override fun unaryMinus() : Division_Ring{
+    override fun unaryMinus() : Ring{
         val copy = Matrix(arr)
         for (i in 0 until m) copy.mult_string(i, createNumber(-1.0))
         return copy

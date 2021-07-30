@@ -1,16 +1,16 @@
 package Number
 
-import MathObject.Division_Ring
+import MathObject.Ring
 import MRV.MRV
 import Matrix.Matrix
 
-class Dec_Number : Division_Ring {
+class Dec_Number : Ring {
     var value : Double = 0.0
     constructor(_value : Double){
         value = _value
     }
 
-    override fun plus(right: Division_Ring): Division_Ring {
+    override fun plus(right: Ring): Ring {
         if (right is Dec_Number){
             return createNumber(value+right.value)
         }
@@ -19,7 +19,7 @@ class Dec_Number : Division_Ring {
         }
     }
 
-    override fun minus(right: Division_Ring): Division_Ring {
+    override fun minus(right: Ring): Ring {
         if (right is Dec_Number){
             return createNumber(value-right.value)
         }
@@ -28,7 +28,7 @@ class Dec_Number : Division_Ring {
         }
     }
 
-    override fun times(right: Division_Ring): Division_Ring {
+    override fun times(right: Ring): Ring {
         if (right is Dec_Number){
             return createNumber(value*right.value)
         }
@@ -37,7 +37,7 @@ class Dec_Number : Division_Ring {
         }
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
-    override fun div(right: Division_Ring): Division_Ring {
+    override fun div(right: Ring): Ring {
         if (right is Dec_Number){
             return createNumber(value/right.value)
         }
@@ -54,7 +54,7 @@ class Dec_Number : Division_Ring {
         else return false
     }
 
-    override fun unaryMinus() : Division_Ring {
+    override fun unaryMinus() : Ring {
         return Dec_Number(-value)
     }
 

@@ -8,6 +8,14 @@ import Lexemes.ErrorHandler.set_default
 import Lexemes.Id_errors
 import Lexemes.Lexeme
 import Lexemes.Sentence
+import Logger.Log
+import MathObject.MathObject.MathObject
+import MathObject.Ring
+import Matrix.AugmentedMatrix
+import Matrix.Matrix
+import Number.createNumber
+import Parameters.Number
+import Support.createRectangleArrayList
 
 fun find_null_string_in_array(arr : ArrayList<String?>): Int{
     var i : Int = 0;
@@ -19,6 +27,7 @@ fun find_null_string_in_array(arr : ArrayList<String?>): Int{
     return -1
 }
 fun is_number(str : String): Boolean{
+    if (str == "") return false
     var commas : Int = 0
     for (ch : Char in str){
         if (is_digit(ch)){}
@@ -45,8 +54,12 @@ object MRV {
         BAD_ARGUMENTS::class,
         UNKNOWN_ERROR::class, MRV.Input_Values_Lexemes_Exception::class
     )
+    fun get_log() : ArrayList<String>{
+        return Log.get_log()
+    }
     fun count_lexemes(temp_input: String?, temp_keys: ArrayList<String?>, temp_values: ArrayList<String?>): Double {
-        if (temp_input == null) throw Input_Input_Lexemes_Exception()
+        Log.clear()
+        if (temp_input == null || temp_input == "") throw Input_Input_Lexemes_Exception()
         val input : String = temp_input
         val keys : ArrayList<String> = arrayListOf()
         val str_values : ArrayList<String> = arrayListOf()
@@ -58,7 +71,7 @@ object MRV {
         }
         run{
             val i = find_null_string_in_array(temp_values)
-            if (i != -1) throw Input_Keys_Lexemes_Exception(i)
+            if (i != -1) throw Input_Values_Lexemes_Exception(i)
             for (str in temp_values) str_values.add(str!!)
         }
         run{
@@ -105,6 +118,144 @@ object MRV {
             throw UNKNOWN_ERROR()
         }
     }
+    fun count_determinant(temp_matrix : ArrayList<ArrayList<String?>>, method : String?, number : String?) : String{
+        Log.clear()
+        val m : Int = temp_matrix.size
+        if (m<1) throw MATRIX_FAIL()
+        for (i in 0 until m) if (temp_matrix[i].size != m) throw NON_QUADRATIC_MATRIX()
+        val arr = createRectangleArrayList(createNumber(0.0), m, m)
+        for (i in 0 until m)
+            for (j in 0 until m)
+                if (is_number(temp_matrix[i][j]!!)) arr[i][j] = createNumber(temp_matrix[i][j]!!.toDouble())
+                else throw FIELD_ERROR(i, j)
+        if (number == null) throw KEY_NUMBER_EMPTY()
+        else if (number == "DEC"){
+            Settings.numbers.use_number = Number.DEC
+        }
+        else if (number == "PROPER"){
+            Settings.numbers.use_number = Number.PROPER
+        }
+        else throw UNKNOWN_NUMBER()
+        val current : Matrix = Matrix(arr)
+        val answer : Ring
+        if (method == null) throw KEY_METHOD_EMPTY()
+        else if (method == "LAPLASS"){
+            answer = current.det_with_laplass()
+        }
+        else if (method == "TRIANGLE"){
+            answer = current.det_with_triangle()
+        }
+        else if (method == "SARUSS"){
+            answer = current.det_with_saruss_rule()
+        }
+        else if (method ==  "BASIC"){
+            answer = current.det_with_basic_rules()
+        }
+        else throw UNKNOWN_METHOD()
+        return answer.toString()
+    }
+    fun find_inverse_matrix(temp_matrix : ArrayList<ArrayList<String?>>, method : String?, number : String?) : String{
+        Log.clear()
+        val m : Int = temp_matrix.size
+        if (m<1) throw MATRIX_FAIL()
+        for (i in 0 until m) if (temp_matrix[i].size != m) throw NON_QUADRATIC_MATRIX()
+        val arr = createRectangleArrayList(createNumber(0.0), m, m)
+        for (i in 0 until m)
+            for (j in 0 until m)
+                if (is_number(temp_matrix[i][j]!!)) arr[i][j] = createNumber(temp_matrix[i][j]!!.toDouble())
+                else throw FIELD_ERROR(i, j)
+        if (number == null) throw KEY_NUMBER_EMPTY()
+        else if (number == "DEC"){
+            Settings.numbers.use_number = Number.DEC
+        }
+        else if (number == "PROPER"){
+            Settings.numbers.use_number = Number.PROPER
+        }
+        else throw UNKNOWN_NUMBER()
+        val current : Matrix = Matrix(arr)
+        val answer : Ring
+        if (method == null) throw KEY_METHOD_EMPTY()
+        else if (method == "GAUSS") {
+            try {
+                answer = current.get_inverse_gauss()
+            }
+            catch (degenerate_matrix : DEGENERATE_MATRIX){
+                return "Матрица вырождена. Обратная не существует"
+            }
+        }
+        else if (method == "ALGEBRAIC_COMPLEMENT")
+        {
+            TODO("Ну тут метод не реализован до сих пор")
+        }
+        else throw UNKNOWN_METHOD()
+        return answer.toString()
+    }
+    fun rank(temp_matrix : ArrayList<ArrayList<String?>>, method : String?, number : String?) : Int{
+        Log.clear()
+        val m : Int = temp_matrix.size
+        if (m<1) throw MATRIX_FAIL()
+        for (i in 0 until m) if (temp_matrix[i].size != m) throw NON_QUADRATIC_MATRIX()
+        val arr = createRectangleArrayList(createNumber(0.0), m, m)
+        for (i in 0 until m)
+            for (j in 0 until m)
+                if (is_number(temp_matrix[i][j]!!)) arr[i][j] = createNumber(temp_matrix[i][j]!!.toDouble())
+                else throw FIELD_ERROR(i, j)
+        if (number == null) throw KEY_NUMBER_EMPTY()
+        else if (number == "DEC"){
+            Settings.numbers.use_number = Number.DEC
+        }
+        else if (number == "PROPER"){
+            Settings.numbers.use_number = Number.PROPER
+        }
+        else throw UNKNOWN_NUMBER()
+        val current : Matrix = Matrix(arr)
+        val answer : Int
+        if (method == null) throw KEY_METHOD_EMPTY()
+        else if (method == "TRIANGLE"){
+            answer = current.rank_with_triangle()
+        }
+        else if (method == "MINORS"){
+            answer = current.rank_with_minors()
+        }
+        else throw UNKNOWN_METHOD()
+        return answer
+    }
+    fun SLE(temp_matrix : ArrayList<ArrayList<String?>>, untrivial : Boolean, method : String?, number : String?) : String{
+        Log.clear()
+        val m : Int = temp_matrix.size
+        if (m<1) throw MATRIX_FAIL()
+        val n : Int = temp_matrix[0].size
+        for (i in 0 until m) if (temp_matrix[i].size != n) throw MATRIX_FAIL()
+        val arr : ArrayList<ArrayList<Ring>>
+        val free : ArrayList<ArrayList<Ring>>
+        if (untrivial){
+            arr = createRectangleArrayList(createNumber(0.0), m, n-1)
+            free = createRectangleArrayList(createNumber(0.0), m, 1)
+            for (i in 0 until m) {
+                for (j in 0 until n - 1)
+                    if (is_number(temp_matrix[i][j]!!)) arr[i][j] = createNumber(temp_matrix[i][j]!!.toDouble())
+                    else throw FIELD_ERROR(i, j)
+                if (is_number(temp_matrix[i][n-1]!!)) free[i][0] = createNumber(temp_matrix[i][n-1]!!.toDouble())
+                else throw FIELD_ERROR(i, n-1)
+            }
+        }
+        else{
+            arr = createRectangleArrayList(createNumber(0.0), m, n)
+            free = createRectangleArrayList(createNumber(0.0), m, 1)
+            for (i in 0 until m)
+                for (j in 0 until n)
+                    if (is_number(temp_matrix[i][j]!!)) arr[i][j] = createNumber(temp_matrix[i][j]!!.toDouble())
+                    else throw FIELD_ERROR(i, j)
+        }
+        val current : AugmentedMatrix = AugmentedMatrix(arr, free)
+        try {
+            val answer : MathObject = current.solve_system()
+            return answer.toString()
+        }
+        catch (have_not_solution : HAVE_NOT_SOLUTIONS){
+            return "Нет решений."
+        }
+    }
     open class Lexemes_Exception : Exception {
         var error_begin = -1
             private set
@@ -120,15 +271,15 @@ object MRV {
     class Input_Input_Lexemes_Exception(): Exception(){
     }
     class Input_Keys_Lexemes_Exception() : Exception() {
-        var error : Int = -1
+        var number_key : Int = -1
         constructor(_error : Int ): this(){
-            error = _error
+            number_key = _error
         }
     }
     class Input_Values_Lexemes_Exception() : Exception() {
-        var error : Int = -1
+        var number_value : Int = -1
         constructor(_error : Int ): this(){
-            error = _error
+            number_value = _error
         }
     }
     class ARGUMENT_LIST_MISMATCH : Lexemes_Exception()
@@ -151,4 +302,16 @@ object MRV {
     class HAVE_NOT_SOLUTIONS : MATRIX_ERROR()
     class NON_SINGLE : MATRIX_ERROR()
     class NON_COMPLIANCE_TYPES : Exception()
+    class KEY_METHOD_EMPTY : Exception()
+    class UNKNOWN_METHOD : Exception()
+    class KEY_NUMBER_EMPTY : Exception()
+    class UNKNOWN_NUMBER : Exception()
+    class FIELD_ERROR : Exception{
+        var i : Int = -1
+        var j : Int = -1
+        constructor(_i : Int, _j : Int){
+            i = _i
+            j = _j
+        }
+    }
 }

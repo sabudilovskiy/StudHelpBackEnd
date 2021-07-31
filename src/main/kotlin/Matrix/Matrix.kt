@@ -43,16 +43,17 @@ open class Matrix : Ring {
     lateinit var arr: ArrayList<ArrayList<Ring>>;
 
     constructor(_arr: ArrayList<ArrayList<Ring>>) {
-        arr = _arr
         m = _arr.size
         if (m > 0) n = _arr[0].size else n = 0
+        arr = createRectangleArrayList<Ring>(createNumber(0.0), m, n)
+        for (i in 0 until m) for (j in 0 until n) arr[i][j] = _arr[i][j]
     }
 
     //создаёт единичную матрицу n на n
     constructor(n: Int) {
         val zero = createNumber(0.0)
         val one = createNumber(1.0)
-        val arr = createRectangleArrayList<Ring>(zero, n, n)
+        arr = createRectangleArrayList<Ring>(zero, n, n)
         m = n
         this.n = n
         for (i in 0 until n) for (j in 0 until n) if (i == j) arr[i][j] = one
@@ -63,7 +64,7 @@ open class Matrix : Ring {
     //прибавляем к a b
     protected open fun summ_strings(a: Int, b: Int, k: Ring) {
         if (0 <= a && a < m && 0 <= b && b < m) {
-            for (i in 0 until n) arr[a][i] += arr[b][i] * k
+            for (i in 0 until n) arr[a][i] = arr[a][i] + arr[b][i] * k
             log_this("Прибавляем к " + (a + 1) + " строке " + (b + 1) + " строку, умноженную на " + k)
         } else throw MRV.INVALID_NUMBER_STRING()
     }
@@ -334,7 +335,7 @@ open class Matrix : Ring {
 
     @Throws(MRV.INVALID_NUMBER_STRING::class, MRV.NON_QUADRATIC_MATRIX::class)
     protected fun algebraic_complement(a: Int, b: Int): Ring {
-        return if (0 <= a && a < m && 0 <= b && b < n) {
+        if (0 <= a && a < m && 0 <= b && b < n) {
             add(
                 "",
                 "Для вычисления алгебраического дополнения необходимо умножить -1 в степени суммы индексов элемента на его минор."
@@ -351,7 +352,7 @@ open class Matrix : Ring {
                 "A" + (a + 1) + (b + 1) + " = " + minor_determinant + "*" + "-1^(" + (a + 1) + "+" + (b + 1) + ") = " + value,
                 ""
             )
-            value
+            return value
         } else throw MRV.INVALID_NUMBER_STRING()
     }
 
@@ -659,7 +660,7 @@ open class Matrix : Ring {
                 for (i in 0 until n) for (j in 0 until n){
                     _arr[i][j] = copy.algebraic_complement(i, j)
                 }
-                copy = Matrix(arr)
+                copy = Matrix(_arr)
                 copy.log_this("Матрица из алгебраических дополнений. Транспонируем её")
                 copy.transposition()
                 copy.log_this("Транспонировали")

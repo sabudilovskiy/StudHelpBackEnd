@@ -37,18 +37,20 @@ class FractionalNumber : Ring {
     override operator fun plus(right : Ring) : Ring {
         if (right is FractionalNumber) {
             val left: FractionalNumber = this
-            var GCD: Long = find_GCD(left.denominator, right.denominator)
-            val new_numerator: Long = left.numerator * GCD / denominator + right.numerator * GCD / right.denominator
-            return FractionalNumber(new_numerator, GCD)
+            val GCD: Long = find_GCD(left.denominator, right.denominator)
+            val LCM: Long = left.denominator * right.denominator / GCD
+            val new_numerator: Long = left.numerator * LCM / denominator + right.numerator * LCM / right.denominator
+            return FractionalNumber(new_numerator, LCM)
         }
         else throw MRV.NON_COMPLIANCE_TYPES()
     }
     override operator fun minus(right : Ring) : Ring {
         if (right is FractionalNumber){
-            val left : FractionalNumber = this
-            var GCD : Long = find_GCD(left.denominator, right.denominator)
-            val new_numerator : Long = left.numerator * GCD / denominator - right.numerator * GCD / right.denominator
-            return FractionalNumber(new_numerator, GCD)
+            val left: FractionalNumber = this
+            val GCD: Long = find_GCD(left.denominator, right.denominator)
+            val LCM: Long = left.denominator * right.denominator / GCD
+            val new_numerator: Long = left.numerator * LCM / denominator - right.numerator * LCM / right.denominator
+            return FractionalNumber(new_numerator, LCM)
         }
         else throw MRV.NON_COMPLIANCE_TYPES()
     }

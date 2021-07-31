@@ -21,26 +21,27 @@ import Support.createSingleArrayList
 class AugmentedMatrix : Matrix {
     protected var augmented_n = 0
     lateinit var augmented_arr: ArrayList<ArrayList<Ring>>
-    constructor(arr: ArrayList<ArrayList<Ring>>, augmented_arr: ArrayList<ArrayList<Ring>>) : super(arr) {
-        this.augmented_arr = augmented_arr
-        val augmented_m = augmented_arr.size
+    constructor(arr: ArrayList<ArrayList<Ring>>, _augmented_arr: ArrayList<ArrayList<Ring>>) : super(arr) {
+        val augmented_m = _augmented_arr.size
         if (augmented_m == m) {
-            if (augmented_m > 0) augmented_n = augmented_arr[0].size else augmented_n = 0
+            if (augmented_m > 0) augmented_n = _augmented_arr[0].size else augmented_n = 0
+            augmented_arr = createRectangleArrayList<Ring>(createNumber(0.0), augmented_m, augmented_n)
+            for (i in 0 until augmented_m) for (j in 0 until augmented_n) augmented_arr[i][j] = _augmented_arr[i][j]
         } else throw MATRIX_DIMENSION_MISSMATCH()
     }
     constructor(left: Matrix, right: Matrix) : super(left.arr) {
         if (left.m == right.m) {
-            arr = left.arr
-            augmented_arr = right.arr
-            m = left.m
-            n = left.n
-            augmented_n = right.n
+            val _arr : ArrayList<ArrayList<Ring>> = left.arr
+            val _augmented_arr : ArrayList<ArrayList<Ring>> = right.arr
+            val temp = AugmentedMatrix(_arr, _augmented_arr)
+            augmented_arr = temp.augmented_arr
+            augmented_n = temp.n
         } else throw MATRIX_DIMENSION_MISSMATCH()
     }
 
     @Throws(INVALID_NUMBER_STRING::class)
     override fun summ_strings(a: Int, b: Int, k: Ring) {
-        for (i in 0 until augmented_n) augmented_arr[a][i] += augmented_arr[b][i] * k
+        for (i in 0 until augmented_n) augmented_arr[a][i] = augmented_arr[a][i] + augmented_arr[b][i] * k
         super.summ_strings(a, b, k)
     }
 

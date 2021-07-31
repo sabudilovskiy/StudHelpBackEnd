@@ -185,7 +185,12 @@ object MRV {
         }
         else if (method == "ALGEBRAIC_COMPLEMENT")
         {
-            TODO("Ну тут метод не реализован до сих пор")
+            try {
+                answer = current.get_inverse_algebraic_complement()
+            }
+            catch (degenerate_matrix : DEGENERATE_MATRIX){
+                return "Матрица вырождена. Обратная не существует"
+            }
         }
         else throw UNKNOWN_METHOD()
         return answer.toString()

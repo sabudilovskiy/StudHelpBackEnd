@@ -4,7 +4,7 @@ import MRV.MRV.INVALID_NUMBER_STRING
 import MRV.MRV.MATRIX_DIMENSION_MISSMATCH
 import MRV.MRV.NON_SINGLE
 import Support.createRectangleArrayList
-import Support.newSingleArrayList
+import Support.createSingleArrayList
 import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
@@ -31,8 +31,8 @@ object test_backend {
             input = scan.nextLine()
             println("Введите количество переменных: ")
             n = scan.nextLine().toInt()
-            keys = newSingleArrayList(null, n)
-            values = newSingleArrayList(null, n)
+            keys = createSingleArrayList(null, n)
+            values = createSingleArrayList(null, n)
             for (i in 0 until n){
                 println("Введите ключ переменной: ")
                 keys[i] = scan.nextLine()

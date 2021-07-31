@@ -4,7 +4,7 @@ import java.lang.IllegalArgumentException
 import java.lang.Math.abs
 
 //создаём массив с n одинаковых элементов. Первый аргумент - экземпляр, второй аргумент - количество
-inline fun <reified T> newSingleArrayList(something : T, n : Int) : ArrayList <T> {
+inline fun <reified T> createSingleArrayList(something : T, n : Int) : ArrayList <T> {
     val array : ArrayList<T> = arrayListOf();
     if (n > 0) {
         var i : Int = 0;
@@ -18,7 +18,7 @@ inline fun <reified T> createRectangleArrayList(something: T, m: Int, n: Int) : 
     val array : ArrayList<ArrayList<T>> = arrayListOf()
     if (n > 0) {
         var i : Int = 0;
-        while (i++ < m) array.add(newSingleArrayList(something, n))
+        while (i++ < m) array.add(createSingleArrayList(something, n))
         return array
     }
     else throw IllegalArgumentException()

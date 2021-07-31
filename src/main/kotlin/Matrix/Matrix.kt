@@ -18,7 +18,7 @@ import Settings.matrix
 import Settings.matrix.Inverse
 import Settings.matrix.Rank.getSettings
 import Support.createRectangleArrayList
-import Support.newSingleArrayList
+import Support.createSingleArrayList
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -450,7 +450,7 @@ open class Matrix : Ring {
     fun decompositonWithStr(str: Int): Ring {
         val zero = createNumber(0.0)
         var det = zero
-        val A = newSingleArrayList<Ring>(zero, m) //массив алгебраических дополнений
+        val A = createSingleArrayList<Ring>(zero, m) //массив алгебраических дополнений
         log_this("Для подсчёта определителя будем использовать разложение в строку. Раскладываем по " + (str + 1) + " строке.")
         for (i in 0 until n) {
             if (arr[str][i].equals(0.0)) {
@@ -486,7 +486,7 @@ open class Matrix : Ring {
     fun decompositonWithCol(col: Int): Ring {
         val zero = createNumber(0.0)
         var det = zero
-        val A = newSingleArrayList<Ring>(zero, m) //массив алгебраических дополнений
+        val A = createSingleArrayList<Ring>(zero, m) //массив алгебраических дополнений
         log_this("Для подсчёта определителя будем использовать разложение в столбец. Раскладываем по " + (col + 1) + " столбцу.")
         for (i in 0 until n) {
             if (arr[i][col].equals(0.0)) {
@@ -607,7 +607,7 @@ open class Matrix : Ring {
         return cur_minor.m
     }
 
-    fun Transposition() {
+    fun transposition() {
         val zero = createNumber(0.0)
         val new_arr = createRectangleArrayList<Ring>(zero, n, m)
         for (i in 0 until m) for (j in 0 until n) new_arr[j][i] = arr[i][j]
@@ -648,7 +648,27 @@ open class Matrix : Ring {
             if (temp.get_main().is_single()) temp.get_augmentation() else throw DEGENERATE_MATRIX()
         } else throw NON_QUADRATIC_MATRIX()
     }
-
+    fun get_inverse_algebraic_complement() : Matrix {
+        if (m == n) {
+            var copy = Matrix(arr)
+            copy.log_this("Чтобы найти обратную матрицу необходимо найти её определитель, затем составить транспонированную матрицу из алгербраических дополнений элементов матрицы и после разделить её на определитель.")
+            val det = copy.determinant()
+            if (!det.equals(0.0)){
+                //матрица из дополнений
+                val _arr = createRectangleArrayList<Ring>(createNumber(0.0), m, n)
+                for (i in 0 until n) for (j in 0 until n){
+                    _arr[i][j] = copy.algebraic_complement(i, j)
+                }
+                copy = Matrix(arr)
+                copy.log_this("Матрица из алгебраических дополнений. Транспонируем её")
+                copy.transposition()
+                copy.log_this("Транспонировали")
+                copy = (copy / det) as Matrix
+                return copy
+            }
+            else throw DEGENERATE_MATRIX()
+        } else throw NON_QUADRATIC_MATRIX()
+    }
     override fun plus(right: Ring): Ring {
         if (right is Matrix){
             val left: Matrix = this

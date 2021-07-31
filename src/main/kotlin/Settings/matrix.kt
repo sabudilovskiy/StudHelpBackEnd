@@ -1,12 +1,14 @@
 package Settings
 
 import MRV.MRV
+import Parameters.Det
 import Parameters.Rank
+import Support.createSingleArrayList
 
 object matrix {
     object Det {
-        private val settings : ArrayList<Parameters.Det> = arrayListOf()
-        private var border = 5
+        private val settings : ArrayList<Parameters.Det> = arrayListOf(Parameters.Det.BASIC, Parameters.Det.BASIC, Parameters.Det.TRIANGLE)
+        private var border = 4
         fun setdefaultSettings() {
             settings.clear()
             settings.add(Parameters.Det.BASIC)
@@ -26,7 +28,8 @@ object matrix {
         @Throws(MRV.MATRIX_DIMENSION_MISSMATCH::class)
         fun get_det_method(n: Int): Parameters.Det {
             if (n > 0) {
-                if (n >= border) return Parameters.Det.TRIANGLE else {
+                if (n >= border) return Parameters.Det.TRIANGLE
+                else {
                     if (n > 3) return Parameters.Det.LAPLASS else return settings[n - 1]
                 }
             } else {
